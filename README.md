@@ -3,7 +3,6 @@
 
 A modern web application for easily sending messages to Discord webhooks with support for text messages and rich embeds.
 
-![Discord Webhook Messenger](public/og-image.png)
 
 ## Features
 
@@ -13,19 +12,6 @@ A modern web application for easily sending messages to Discord webhooks with su
 - **Security**: Built-in rate limiting and security measures
 - **Validation**: Ensures all webhook content follows Discord's requirements
 - **Persistence**: Remembers your webhook URLs and settings for convenience
-
-## Technology Stack
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- React Router
-- shadcn-ui
-- Tailwind CSS
-- React Query
-- Zod for validation
 
 ## Getting Started
 
@@ -71,20 +57,6 @@ To serve the production build locally:
 ```sh
 npm run preview
 ```
-
-## Deployment
-
-You can deploy this application to any static site hosting service:
-
-1. Build the project using `npm run build`
-2. Upload the contents of the `dist` directory to your hosting service
-3. Configure your hosting service to handle SPA routing if needed
-
-Popular hosting options:
-- Netlify
-- Vercel
-- GitHub Pages
-- Firebase Hosting
 
 ## Security Measures
 
