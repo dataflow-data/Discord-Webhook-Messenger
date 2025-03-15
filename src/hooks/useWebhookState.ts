@@ -18,6 +18,11 @@ export const useWebhookState = () => {
           content: "",
           isSending: false,
           isValidUrl: parsed.webhookUrl ? isValidWebhookUrl(parsed.webhookUrl) : false,
+          useEmbed: parsed.useEmbed || false,
+          embedTitle: parsed.embedTitle || "",
+          embedDescription: parsed.embedDescription || "",
+          embedColor: parsed.embedColor || "#5865F2", // Discord blue as default
+          termsAccepted: false,
         };
       } catch (e) {
         console.error("Failed to parse saved webhook data:", e);
@@ -31,6 +36,11 @@ export const useWebhookState = () => {
       content: "",
       isSending: false,
       isValidUrl: false,
+      useEmbed: false,
+      embedTitle: "",
+      embedDescription: "",
+      embedColor: "#5865F2",
+      termsAccepted: false,
     };
   });
   
@@ -40,10 +50,14 @@ export const useWebhookState = () => {
       webhookUrl: state.webhookUrl,
       username: state.username,
       avatarUrl: state.avatarUrl,
+      useEmbed: state.useEmbed,
+      embedTitle: state.embedTitle,
+      embedDescription: state.embedDescription,
+      embedColor: state.embedColor,
     };
     
     localStorage.setItem("webhook-data", JSON.stringify(dataToSave));
-  }, [state.webhookUrl, state.username, state.avatarUrl]);
+  }, [state.webhookUrl, state.username, state.avatarUrl, state.useEmbed, state.embedTitle, state.embedDescription, state.embedColor]);
   
   // Handle URL change and validation
   const handleUrlChange = (url: string) => {
@@ -58,7 +72,7 @@ export const useWebhookState = () => {
   const updateField = (field: keyof WebhookState, value: string) => {
     setState({
       ...state,
-      [field]: value,
+      [field]: field === "useEmbed" || field === "termsAccepted" ? Boolean(value) : value,
     });
   };
   
@@ -67,6 +81,9 @@ export const useWebhookState = () => {
     setState({
       ...state,
       content: "",
+      embedTitle: "",
+      embedDescription: "",
+      termsAccepted: false,
     });
   };
   

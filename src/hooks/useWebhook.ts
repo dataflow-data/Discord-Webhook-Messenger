@@ -12,6 +12,11 @@ export interface WebhookState {
   content: string;
   isSending: boolean;
   isValidUrl: boolean;
+  useEmbed: boolean;
+  embedTitle: string;
+  embedDescription: string;
+  embedColor: string;
+  termsAccepted: boolean;
 }
 
 export const useWebhook = () => {
@@ -40,16 +45,31 @@ export const useWebhook = () => {
       return false;
     }
     
-    if (!state.content.trim()) {
-      toast.error("Message cannot be empty");
+    // Check if terms are accepted
+    if (!state.termsAccepted) {
+      toast.error("You must accept the terms before sending");
       return false;
     }
     
-    // Check additional content validation
-    const contentValidation = validateContent(state.content);
-    if (!contentValidation.valid) {
-      toast.error(contentValidation.reason || "Invalid message content");
+    // If not using embeds, content is required
+    if (!state.useEmbed && !state.content.trim()) {
+      toast.error("Message content cannot be empty when not using embeds");
       return false;
+    }
+    
+    // If using embeds, at least title or description is required
+    if (state.useEmbed && !state.embedTitle.trim() && !state.embedDescription.trim()) {
+      toast.error("Embed must have at least a title or description");
+      return false;
+    }
+    
+    // Check additional content validation if content exists
+    if (state.content.trim()) {
+      const contentValidation = validateContent(state.content);
+      if (!contentValidation.valid) {
+        toast.error(contentValidation.reason || "Invalid message content");
+        return false;
+      }
     }
     
     // Check username validation if provided
@@ -98,6 +118,21 @@ export const useWebhook = () => {
       messageData.avatar_url = state.avatarUrl;
     }
     
+    // Add embeds if needed
+    if (state.useEmbed) {
+      // Parse color from hex to decimal
+      let colorDecimal;
+      if (state.embedColor && state.embedColor.startsWith("#")) {
+        colorDecimal = parseInt(state.embedColor.slice(1), 16);
+      }
+      
+      messageData.embeds = [{
+        title: state.embedTitle || undefined,
+        description: state.embedDescription || undefined,
+        color: colorDecimal
+      }];
+    }
+    
     try {
       const result = await sendWebhookMessage(state.webhookUrl, messageData);
       
@@ -123,11 +158,23 @@ export const useWebhook = () => {
     }
   };
   
+  // Toggle the terms accepted state
+  const toggleTermsAccepted = () => {
+    updateField("termsAccepted", state.termsAccepted ? "" : "true");
+  };
+  
+  // Toggle embed mode
+  const toggleEmbed = () => {
+    updateField("useEmbed", state.useEmbed ? "" : "true");
+  };
+  
   return {
     state,
     handleUrlChange,
     updateField,
     sendMessage,
+    toggleTermsAccepted,
+    toggleEmbed,
     usageCount,
     isBlockedTemporarily,
     formattedBlockTime,

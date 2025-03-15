@@ -1,13 +1,43 @@
+
 /**
  * Discord Webhook Service
  * Handles sending messages to Discord webhooks with security measures
  */
+
+// Interface for embed data
+export interface WebhookEmbed {
+  title?: string;
+  description?: string;
+  color?: number;
+  fields?: Array<{
+    name: string;
+    value: string;
+    inline?: boolean;
+  }>;
+  author?: {
+    name: string;
+    url?: string;
+    icon_url?: string;
+  };
+  footer?: {
+    text: string;
+    icon_url?: string;
+  };
+  image?: {
+    url: string;
+  };
+  thumbnail?: {
+    url: string;
+  };
+  timestamp?: string;
+}
 
 // Interface for message data
 export interface WebhookMessageData {
   username?: string;
   avatar_url?: string;
   content: string;
+  embeds?: WebhookEmbed[];
 }
 
 // Interface for webhook response
@@ -20,6 +50,8 @@ export interface WebhookResponse {
 // Add security and rate limiting
 const CONTENT_MAX_LENGTH = 2000;
 const USERNAME_MAX_LENGTH = 80;
+const EMBED_TITLE_MAX_LENGTH = 256;
+const EMBED_DESCRIPTION_MAX_LENGTH = 4096;
 const BLOCKED_CONTENT_PATTERNS = [
   /\b(hack|ddos|attack|exploit|bomb|terrorist|threat)\b/i,  // Block potentially malicious intent
   /@everyone/i,  // Block @everyone pings
@@ -86,13 +118,84 @@ const detectSuspiciousContent = (content: string): { suspicious: boolean; reason
 };
 
 /**
+ * Validates an embed
+ * @param embed The embed object to validate
+ * @returns Object with validation result and reason if invalid
+ */
+export const validateEmbed = (embed: WebhookEmbed): { valid: boolean; reason?: string } => {
+  if (!embed) {
+    return { valid: false, reason: "Embed data is missing." };
+  }
+  
+  // Check embed title length
+  if (embed.title && embed.title.length > EMBED_TITLE_MAX_LENGTH) {
+    return {
+      valid: false,
+      reason: `Embed title exceeds maximum length of ${EMBED_TITLE_MAX_LENGTH} characters.`
+    };
+  }
+  
+  // Check embed description length
+  if (embed.description && embed.description.length > EMBED_DESCRIPTION_MAX_LENGTH) {
+    return {
+      valid: false,
+      reason: `Embed description exceeds maximum length of ${EMBED_DESCRIPTION_MAX_LENGTH} characters.`
+    };
+  }
+  
+  // Check for suspicious content in title
+  if (embed.title) {
+    const suspiciousCheck = detectSuspiciousContent(embed.title);
+    if (suspiciousCheck.suspicious) {
+      return {
+        valid: false,
+        reason: `Embed title: ${suspiciousCheck.reason}`
+      };
+    }
+    
+    // Check for blocked content patterns in title
+    for (const pattern of BLOCKED_CONTENT_PATTERNS) {
+      if (pattern.test(embed.title)) {
+        return { 
+          valid: false, 
+          reason: "Embed title contains prohibited content or patterns." 
+        };
+      }
+    }
+  }
+  
+  // Check for suspicious content in description
+  if (embed.description) {
+    const suspiciousCheck = detectSuspiciousContent(embed.description);
+    if (suspiciousCheck.suspicious) {
+      return {
+        valid: false,
+        reason: `Embed description: ${suspiciousCheck.reason}`
+      };
+    }
+    
+    // Check for blocked content patterns in description
+    for (const pattern of BLOCKED_CONTENT_PATTERNS) {
+      if (pattern.test(embed.description)) {
+        return { 
+          valid: false, 
+          reason: "Embed description contains prohibited content or patterns." 
+        };
+      }
+    }
+  }
+  
+  return { valid: true };
+};
+
+/**
  * Checks content for potentially abusive patterns
  * @param content Message content to check
  * @returns Object with validation result and reason if invalid
  */
 export const validateContent = (content: string): { valid: boolean; reason?: string } => {
   if (!content || content.trim() === "") {
-    return { valid: false, reason: "Message content cannot be empty." };
+    return { valid: true }; // Content can be empty if embeds are provided
   }
   
   if (content.length > CONTENT_MAX_LENGTH) {
@@ -248,19 +351,52 @@ export const sendWebhookMessage = async (
       };
     }
     
-    // Validate content
-    const contentValidation = validateContent(messageData.content);
-    if (!contentValidation.valid) {
-      logSecurityEvent({
-        type: 'validation_failure',
-        reason: contentValidation.reason || 'Invalid content',
-        metadata: { contentLength: messageData.content.length }
-      });
-      
+    // Validate content if provided
+    if (messageData.content) {
+      const contentValidation = validateContent(messageData.content);
+      if (!contentValidation.valid) {
+        logSecurityEvent({
+          type: 'validation_failure',
+          reason: contentValidation.reason || 'Invalid content',
+          metadata: { contentLength: messageData.content.length }
+        });
+        
+        return {
+          success: false,
+          message: contentValidation.reason || "Invalid message content.",
+          securityAction: "content_blocked"
+        };
+      }
+    }
+    
+    // Validate embeds if provided
+    if (messageData.embeds && messageData.embeds.length > 0) {
+      for (const embed of messageData.embeds) {
+        const embedValidation = validateEmbed(embed);
+        if (!embedValidation.valid) {
+          logSecurityEvent({
+            type: 'validation_failure',
+            reason: embedValidation.reason || 'Invalid embed',
+            metadata: { 
+              embedTitle: embed.title?.slice(0, 30),
+              embedDescriptionLength: embed.description?.length 
+            }
+          });
+          
+          return {
+            success: false,
+            message: embedValidation.reason || "Invalid embed data.",
+            securityAction: "embed_blocked"
+          };
+        }
+      }
+    }
+    
+    // Validate either content or embeds must be provided
+    if (!messageData.content && (!messageData.embeds || messageData.embeds.length === 0)) {
       return {
         success: false,
-        message: contentValidation.reason || "Invalid message content.",
-        securityAction: "content_blocked"
+        message: "Either message content or at least one embed must be provided.",
       };
     }
     

@@ -13,6 +13,8 @@ const WebhookForm: React.FC = () => {
     handleUrlChange, 
     updateField, 
     sendMessage, 
+    toggleTermsAccepted,
+    toggleEmbed,
     usageCount, 
     isBlockedTemporarily,
     formattedBlockTime,
@@ -79,6 +81,8 @@ const WebhookForm: React.FC = () => {
               handleUrlChange={handleUrlChange}
               updateField={updateField}
               toggleOptional={toggleOptional}
+              toggleEmbed={toggleEmbed}
+              toggleTermsAccepted={toggleTermsAccepted}
               handleKeyDown={handleKeyDown}
               handleSubmit={handleSubmit}
             />
