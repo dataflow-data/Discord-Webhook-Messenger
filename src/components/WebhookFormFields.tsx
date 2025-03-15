@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Send, ChevronDown, ChevronUp, MessageSquare, Info, AlertCircle, CheckCircle2, Image, FileText, Book } from "lucide-react";
+import { Send, ChevronDown, ChevronUp, MessageSquare, Info, AlertCircle, CheckCircle2, Image, FileText, BookImage, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,6 +35,52 @@ const WebhookFormFields: React.FC<WebhookFormFieldsProps> = ({
   handleKeyDown,
   handleSubmit
 }) => {
+  // Handle image upload for text messages
+  const handleContentImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.size > 8 * 1024 * 1024) { // 8MB limit for Discord
+        alert("Image is too large. Maximum size is 8MB.");
+        return;
+      }
+      
+      // Use direct URL input instead of file upload (in a real app, you'd upload to a hosting service)
+      const reader = new FileReader();
+      reader.onload = () => {
+        updateField("contentImageUrl", reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  
+  // Handle image upload for embeds
+  const handleEmbedImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.size > 8 * 1024 * 1024) { // 8MB limit for Discord
+        alert("Image is too large. Maximum size is 8MB.");
+        return;
+      }
+      
+      // Use direct URL input instead of file upload (in a real app, you'd upload to a hosting service)
+      const reader = new FileReader();
+      reader.onload = () => {
+        updateField("embedImageUrl", reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  
+  // Function to clear image URL
+  const clearContentImage = () => {
+    updateField("contentImageUrl", "");
+  };
+  
+  // Function to clear embed image URL
+  const clearEmbedImage = () => {
+    updateField("embedImageUrl", "");
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="space-y-5">
@@ -175,7 +221,7 @@ const WebhookFormFields: React.FC<WebhookFormFieldsProps> = ({
                   className="text-xs font-medium uppercase tracking-wider mb-1.5 text-white/80 flex items-center gap-1"
                 >
                   MESSAGE CONTENT
-                  <div className="w-1.5 h-1.5 rounded-full bg-destructive/70 mt-0.5"></div>
+                  {(!state.contentImageUrl) && <div className="w-1.5 h-1.5 rounded-full bg-destructive/70 mt-0.5"></div>}
                 </Label>
                 <div className="relative">
                   <Textarea
@@ -185,7 +231,7 @@ const WebhookFormFields: React.FC<WebhookFormFieldsProps> = ({
                     onChange={(e) => updateField("content", e.target.value)}
                     onKeyDown={handleKeyDown}
                     className="message-field min-h-[120px]"
-                    required={!state.useEmbed}
+                    required={!state.contentImageUrl && !state.useEmbed}
                     disabled={isBlockedTemporarily}
                     maxLength={2000}
                   />
@@ -198,14 +244,6 @@ const WebhookFormFields: React.FC<WebhookFormFieldsProps> = ({
                       disabled={isBlockedTemporarily}
                     >
                       <MessageSquare className="h-3.5 w-3.5" />
-                    </button>
-                    <button 
-                      type="button" 
-                      className="p-1.5 rounded bg-secondary/30 hover:bg-secondary/50 transition-colors text-white/70 hover:text-white"
-                      title="Add image"
-                      disabled={isBlockedTemporarily}
-                    >
-                      <Image className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 </div>
@@ -222,6 +260,68 @@ const WebhookFormFields: React.FC<WebhookFormFieldsProps> = ({
                     </p>
                   )}
                 </div>
+              </div>
+              
+              {/* Image Upload for Text Messages */}
+              <div>
+                <Label 
+                  htmlFor="contentImage" 
+                  className="text-xs font-medium uppercase tracking-wider mb-1.5 text-white/80 flex items-center gap-1"
+                >
+                  ATTACH IMAGE
+                  {(!state.content) && <div className="w-1.5 h-1.5 rounded-full bg-destructive/70 mt-0.5"></div>}
+                </Label>
+                
+                {!state.contentImageUrl ? (
+                  <div className="border-2 border-dashed border-border/50 rounded-md p-6 text-center hover:border-primary/50 transition-colors">
+                    <div className="flex flex-col items-center">
+                      <Image className="h-8 w-8 text-muted-foreground mb-2" />
+                      <p className="text-sm text-muted-foreground mb-2">Drag & drop an image here or click to browse</p>
+                      <input
+                        id="contentImage"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleContentImageUpload}
+                        className="hidden"
+                        disabled={isBlockedTemporarily}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => document.getElementById('contentImage')?.click()}
+                        disabled={isBlockedTemporarily}
+                      >
+                        Choose Image
+                      </Button>
+                      <p className="text-xs text-muted-foreground mt-2">Maximum file size: 8MB</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="relative border rounded-md overflow-hidden">
+                    <div className="relative pt-[56.25%]">
+                      <img 
+                        src={state.contentImageUrl} 
+                        alt="Message attachment" 
+                        className="absolute inset-0 w-full h-full object-contain bg-background/50" 
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-2 right-2"
+                      onClick={clearContentImage}
+                      disabled={isBlockedTemporarily}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+                
+                <p className="text-xs text-muted-foreground mt-1.5">
+                  Either message content or an image is required
+                </p>
               </div>
             </TabsContent>
             
@@ -269,6 +369,63 @@ const WebhookFormFields: React.FC<WebhookFormFieldsProps> = ({
                     </p>
                   )}
                 </div>
+              </div>
+              
+              {/* Embed Image Upload */}
+              <div>
+                <Label 
+                  htmlFor="embedImage" 
+                  className="text-xs font-medium uppercase tracking-wider mb-1.5 text-white/80 flex items-center gap-1"
+                >
+                  EMBED IMAGE
+                </Label>
+                
+                {!state.embedImageUrl ? (
+                  <div className="border-2 border-dashed border-border/50 rounded-md p-6 text-center hover:border-primary/50 transition-colors">
+                    <div className="flex flex-col items-center">
+                      <BookImage className="h-8 w-8 text-muted-foreground mb-2" />
+                      <p className="text-sm text-muted-foreground mb-2">Add an image to your embed</p>
+                      <input
+                        id="embedImage"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleEmbedImageUpload}
+                        className="hidden"
+                        disabled={isBlockedTemporarily}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => document.getElementById('embedImage')?.click()}
+                        disabled={isBlockedTemporarily}
+                      >
+                        Choose Image
+                      </Button>
+                      <p className="text-xs text-muted-foreground mt-2">Maximum file size: 8MB</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="relative border rounded-md overflow-hidden">
+                    <div className="relative pt-[56.25%]">
+                      <img 
+                        src={state.embedImageUrl} 
+                        alt="Embed image" 
+                        className="absolute inset-0 w-full h-full object-contain bg-background/50" 
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-2 right-2"
+                      onClick={clearEmbedImage}
+                      disabled={isBlockedTemporarily}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
               </div>
               
               <div>
@@ -359,8 +516,8 @@ const WebhookFormFields: React.FC<WebhookFormFieldsProps> = ({
           type="submit"
           disabled={
             !state.isValidUrl || 
-            (!state.content.trim() && !state.useEmbed) || 
-            (state.useEmbed && !state.embedTitle.trim() && !state.embedDescription.trim()) || 
+            ((!state.content.trim() && !state.contentImageUrl) && !state.useEmbed) || 
+            (state.useEmbed && !state.embedTitle.trim() && !state.embedDescription.trim() && !state.embedImageUrl) || 
             !state.termsAccepted ||
             state.isSending || 
             isBlockedTemporarily

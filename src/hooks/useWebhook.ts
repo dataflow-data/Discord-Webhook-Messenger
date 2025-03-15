@@ -10,12 +10,14 @@ export interface WebhookState {
   username: string;
   avatarUrl: string;
   content: string;
+  contentImageUrl: string;
   isSending: boolean;
   isValidUrl: boolean;
   useEmbed: boolean;
   embedTitle: string;
   embedDescription: string;
   embedColor: string;
+  embedImageUrl: string;
   termsAccepted: boolean;
 }
 
@@ -51,15 +53,15 @@ export const useWebhook = () => {
       return false;
     }
     
-    // If not using embeds, content is required
-    if (!state.useEmbed && !state.content.trim()) {
-      toast.error("Message content cannot be empty when not using embeds");
+    // If not using embeds, content or image is required
+    if (!state.useEmbed && !state.content.trim() && !state.contentImageUrl.trim()) {
+      toast.error("Message content or image is required when not using embeds");
       return false;
     }
     
-    // If using embeds, at least title or description is required
-    if (state.useEmbed && !state.embedTitle.trim() && !state.embedDescription.trim()) {
-      toast.error("Embed must have at least a title or description");
+    // If using embeds, at least title, description, or image is required
+    if (state.useEmbed && !state.embedTitle.trim() && !state.embedDescription.trim() && !state.embedImageUrl.trim()) {
+      toast.error("Embed must have at least a title, description, or image");
       return false;
     }
     
@@ -118,6 +120,13 @@ export const useWebhook = () => {
       messageData.avatar_url = state.avatarUrl;
     }
     
+    // Add image to text message if provided
+    if (state.contentImageUrl.trim() && !state.useEmbed) {
+      messageData.content = state.content.trim() 
+        ? `${state.content}\n${state.contentImageUrl}` 
+        : state.contentImageUrl;
+    }
+    
     // Add embeds if needed
     if (state.useEmbed) {
       // Parse color from hex to decimal
@@ -129,7 +138,8 @@ export const useWebhook = () => {
       messageData.embeds = [{
         title: state.embedTitle || undefined,
         description: state.embedDescription || undefined,
-        color: colorDecimal
+        color: colorDecimal,
+        image: state.embedImageUrl ? { url: state.embedImageUrl } : undefined
       }];
     }
     

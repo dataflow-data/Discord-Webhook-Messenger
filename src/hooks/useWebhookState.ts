@@ -16,12 +16,14 @@ export const useWebhookState = () => {
           username: parsed.username || "",
           avatarUrl: parsed.avatarUrl || "",
           content: "",
+          contentImageUrl: "",
           isSending: false,
           isValidUrl: parsed.webhookUrl ? isValidWebhookUrl(parsed.webhookUrl) : false,
           useEmbed: parsed.useEmbed || false,
           embedTitle: parsed.embedTitle || "",
           embedDescription: parsed.embedDescription || "",
           embedColor: parsed.embedColor || "#5865F2", // Discord blue as default
+          embedImageUrl: "",
           termsAccepted: false,
         };
       } catch (e) {
@@ -34,12 +36,14 @@ export const useWebhookState = () => {
       username: "",
       avatarUrl: "",
       content: "",
+      contentImageUrl: "",
       isSending: false,
       isValidUrl: false,
       useEmbed: false,
       embedTitle: "",
       embedDescription: "",
       embedColor: "#5865F2",
+      embedImageUrl: "",
       termsAccepted: false,
     };
   });
@@ -81,8 +85,10 @@ export const useWebhookState = () => {
     setState({
       ...state,
       content: "",
+      contentImageUrl: "",
       embedTitle: "",
       embedDescription: "",
+      embedImageUrl: "",
       termsAccepted: false,
     });
   };
