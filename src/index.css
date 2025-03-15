@@ -8,23 +8,23 @@
 
 @layer base {
   :root {
-    --background: 225 6% 13%;
-    --foreground: 0 0% 100%;
+    --background: 222 14% 10%;
+    --foreground: 210 40% 98%;
 
-    --card: 220 7% 18%;
-    --card-foreground: 0 0% 100%;
+    --card: 222 16% 13%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 220 7% 18%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 222 16% 13%;
+    --popover-foreground: 210 40% 98%;
 
     --primary: 235 86% 65%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 217 8% 24%;
+    --secondary: 217 11% 18%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 220 7% 22%;
-    --muted-foreground: 220 10% 70%;
+    --muted: 217 11% 15%;
+    --muted-foreground: 215 20% 65%;
 
     --accent: 235 86% 65%;
     --accent-foreground: 0 0% 100%;
@@ -32,19 +32,19 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 217 8% 24%;
-    --input: 217 8% 24%;
+    --border: 216 14% 20%;
+    --input: 216 14% 20%;
     --ring: 235 86% 65%;
 
-    --radius: 6px;
+    --radius: 0.5rem;
 
-    --sidebar-background: 220 7% 18%;
+    --sidebar-background: 222 17% 15%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 235 86% 65%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 10% 22%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 217 8% 24%;
+    --sidebar-border: 216 14% 20%;
     --sidebar-ring: 235 86% 65%;
   }
 }
@@ -68,9 +68,27 @@
   }
 }
 
+@layer components {
+  .glass-card {
+    @apply bg-card/90 backdrop-blur-sm border border-border/50 shadow-xl;
+  }
+  
+  .hover-glow {
+    @apply transition-all duration-300 hover:bg-primary/10 hover:shadow-md hover:shadow-primary/10;
+  }
+  
+  .animate-in {
+    @apply transition-all duration-300 ease-in-out;
+  }
+  
+  .input-focus {
+    @apply focus:ring-2 focus:ring-primary/30 focus:border-primary/60 transition-all duration-200;
+  }
+}
+
 @layer utilities {
   .text-shadow {
-    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
   }
   
   .text-balance {
@@ -89,40 +107,10 @@
   overflow-x: hidden;
 }
 
-.focus-ring {
-  @apply ring-2 ring-primary/20 ring-offset-2 ring-offset-background transition-all duration-200;
-}
-
-.transition-all {
-  transition-property: all;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 300ms;
-}
-
-.message-field {
-  resize: none;
-  overflow-y: auto;
-  min-height: 120px;
-  transition: all 0.2s ease;
-  background-color: hsl(223, 7%, 20%);
-  border-color: hsl(223, 7%, 24%);
-}
-
-.message-field:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(114, 137, 218, 0.3);
-  border-color: hsl(235, 86%, 65%);
-}
-
-.webhook-container {
-  max-width: 1100px;
-  width: 100%;
-  margin: 0 auto;
-}
-
 .discord-header {
-  background-color: hsl(220, 7%, 18%);
-  border-bottom: 1px solid hsl(217, 8%, 24%);
+  background-color: hsl(var(--card));
+  border-bottom: 1px solid hsl(var(--border));
+  box-shadow: 0 1px 0 rgba(4,4,5,0.2), 0 1.5px 0 rgba(6,6,7,0.05), 0 2px 0 rgba(4,4,5,0.05);
 }
 
 .discord-sidebar-item {
@@ -137,40 +125,85 @@
   @apply bg-primary/10 text-primary;
 }
 
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.message-field {
+  resize: none;
+  overflow-y: auto;
+  min-height: 120px;
+  transition: all 0.2s ease;
+  background-color: hsl(222, 13%, 16%);
+  border-color: hsl(216, 14%, 20%);
+  @apply rounded-md input-focus;
+}
+
+.message-field:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(114, 137, 218, 0.3);
+  border-color: hsl(235, 86%, 65%);
+}
+
+.webhook-container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+}
+
 .discord-card {
-  @apply bg-card border border-border/30 rounded-lg overflow-hidden;
+  @apply glass-card rounded-lg overflow-hidden hover:border-primary/20;
+}
+
+.discord-badge {
+  @apply inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-xs font-medium;
 }
 
 .discord-input {
-  @apply bg-secondary/80 border-input text-white focus:border-primary/60;
+  @apply bg-secondary/60 border-input text-white input-focus;
 }
 
-.discord-button-primary {
-  @apply bg-primary hover:bg-primary/90 text-white transition-colors;
+.text-gradient {
+  @apply bg-gradient-to-r from-primary via-primary/90 to-primary/80 bg-clip-text text-transparent;
 }
 
-.discord-button-secondary {
-  @apply bg-secondary hover:bg-secondary/80 text-white transition-colors;
+.btn-glow:hover {
+  box-shadow: 0 0 15px -3px hsl(var(--primary));
 }
 
-.page-transition-enter {
-  opacity: 0;
-  transform: translateY(20px);
+.pulse-dot {
+  position: relative;
 }
 
-.page-transition-enter-active {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 400ms, transform 400ms;
+.pulse-dot::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -12px;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: hsl(var(--primary));
+  animation: pulse 1.5s infinite;
 }
 
-.page-transition-exit {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.page-transition-exit-active {
-  opacity: 0;
-  transform: translateY(-20px);
-  transition: opacity 400ms, transform 400ms;
+@keyframes pulse {
+  0% {
+    transform: translateY(-50%) scale(0.8);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-50%) scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-50%) scale(0.8);
+    opacity: 0.8;
+  }
 }
