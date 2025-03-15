@@ -10,15 +10,15 @@ interface WebhookDocumentationProps {
 
 const WebhookDocumentation: React.FC<WebhookDocumentationProps> = ({ className }) => {
   return (
-    <Card className={cn("p-6 shadow-lg border-border/30 card-gradient", className)}>
-      <div className="flex items-center gap-3 mb-4">
+    <Card className={cn("p-6 shadow-lg border-border/30 card-gradient h-fit", className)}>
+      <div className="flex items-center gap-3 mb-5">
         <div className="bg-primary/15 p-2 rounded-lg">
           <Book className="h-5 w-5 text-primary" />
         </div>
         <h2 className="text-lg font-semibold text-white">Discord Webhook Documentation</h2>
       </div>
       
-      <div className="space-y-6 text-sm text-white/90">
+      <div className="space-y-7 text-sm text-white/90 overflow-y-auto max-h-[calc(100vh-240px)] pr-1 scrollbar-none">
         <section className="space-y-3">
           <h3 className="font-medium text-primary flex items-center gap-2">
             <MessageSquare className="h-4 w-4" />
