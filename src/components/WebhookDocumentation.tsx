@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Book, Code, FileText, MessageSquare } from "lucide-react";
+import { Book, Code, FileText, MessageSquare, Webhook } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -10,24 +10,43 @@ interface WebhookDocumentationProps {
 
 const WebhookDocumentation: React.FC<WebhookDocumentationProps> = ({ className }) => {
   return (
-    <Card className={cn("p-6 shadow-lg border-border/30 card-gradient", className)}>
+    <Card className={cn("p-6 shadow-lg border-border/30 bg-[#2F3136] border-[#202225]", className)}>
       <div className="flex items-center gap-3 mb-4">
-        <div className="bg-primary/15 p-2 rounded-lg">
-          <Book className="h-5 w-5 text-primary" />
+        <div className="bg-[#5865F2]/15 p-2 rounded-lg">
+          <Book className="h-5 w-5 text-[#5865F2]" />
         </div>
         <h2 className="text-lg font-semibold text-white">Discord Webhook Documentation</h2>
       </div>
       
       <div className="space-y-6 text-sm text-white/90">
         <section className="space-y-3">
-          <h3 className="font-medium text-primary flex items-center gap-2">
+          <h3 className="font-medium text-[#5865F2] flex items-center gap-2">
+            <Webhook className="h-4 w-4" />
+            What are Discord Webhooks?
+          </h3>
+          <p className="leading-relaxed">
+            Discord webhooks are a simple way to post messages to channels without needing a bot account. They can post messages, embed rich content, and upload files.
+          </p>
+          <div className="bg-[#202225] p-3 rounded-md text-xs">
+            <p className="text-[#5865F2] mb-1">🔗 Where to find webhooks:</p>
+            <ol className="list-decimal list-inside pl-1 space-y-1">
+              <li>Server Settings</li>
+              <li>Integrations</li>
+              <li>Webhooks</li>
+              <li>Create/manage webhook</li>
+            </ol>
+          </div>
+        </section>
+        
+        <section className="space-y-3">
+          <h3 className="font-medium text-[#5865F2] flex items-center gap-2">
             <MessageSquare className="h-4 w-4" />
             Basic Message Structure
           </h3>
           <p className="leading-relaxed">
             Discord webhooks accept JSON payloads with the following structure:
           </p>
-          <div className="bg-black/30 p-3 rounded-md font-mono text-xs overflow-x-auto">
+          <div className="bg-[#202225] p-3 rounded-md font-mono text-xs overflow-x-auto">
             {`{
   "content": "Hello, Discord!",
   "username": "Custom Bot Name",
@@ -42,48 +61,51 @@ const WebhookDocumentation: React.FC<WebhookDocumentationProps> = ({ className }
         </section>
         
         <section className="space-y-3">
-          <h3 className="font-medium text-primary flex items-center gap-2">
+          <h3 className="font-medium text-[#5865F2] flex items-center gap-2">
             <Code className="h-4 w-4" />
-            Markdown Formatting
+            Discord Markdown Formatting
           </h3>
           <p className="leading-relaxed">
             Discord supports various markdown formatting in webhook messages:
           </p>
           <div className="grid grid-cols-2 gap-2">
-            <div className="bg-black/30 p-2 rounded-md font-mono text-xs">*italic*</div>
+            <div className="bg-[#202225] p-2 rounded-md font-mono text-xs">*italic*</div>
             <div className="p-2">→ <em>italic</em></div>
             
-            <div className="bg-black/30 p-2 rounded-md font-mono text-xs">**bold**</div>
+            <div className="bg-[#202225] p-2 rounded-md font-mono text-xs">**bold**</div>
             <div className="p-2">→ <strong>bold</strong></div>
             
-            <div className="bg-black/30 p-2 rounded-md font-mono text-xs">***bold italic***</div>
+            <div className="bg-[#202225] p-2 rounded-md font-mono text-xs">***bold italic***</div>
             <div className="p-2">→ <strong><em>bold italic</em></strong></div>
             
-            <div className="bg-black/30 p-2 rounded-md font-mono text-xs">__underline__</div>
+            <div className="bg-[#202225] p-2 rounded-md font-mono text-xs">__underline__</div>
             <div className="p-2">→ underlined text</div>
             
-            <div className="bg-black/30 p-2 rounded-md font-mono text-xs">~~strikethrough~~</div>
+            <div className="bg-[#202225] p-2 rounded-md font-mono text-xs">~~strikethrough~~</div>
             <div className="p-2">→ <del>strikethrough</del></div>
             
-            <div className="bg-black/30 p-2 rounded-md font-mono text-xs">\`code\`</div>
+            <div className="bg-[#202225] p-2 rounded-md font-mono text-xs">\`code\`</div>
             <div className="p-2">→ <code>code</code></div>
             
-            <div className="bg-black/30 p-2 rounded-md font-mono text-xs overflow-hidden">\`\`\`
+            <div className="bg-[#202225] p-2 rounded-md font-mono text-xs overflow-hidden">\`\`\`
 code block
 \`\`\`</div>
             <div className="p-2">→ block of code</div>
+
+            <div className="bg-[#202225] p-2 rounded-md font-mono text-xs">> quote</div>
+            <div className="p-2">→ blockquote</div>
           </div>
         </section>
         
         <section className="space-y-3">
-          <h3 className="font-medium text-primary flex items-center gap-2">
+          <h3 className="font-medium text-[#5865F2] flex items-center gap-2">
             <FileText className="h-4 w-4" />
-            Embeds
+            Discord Embeds
           </h3>
           <p className="leading-relaxed">
             You can create rich embeds with the following structure:
           </p>
-          <div className="bg-black/30 p-3 rounded-md font-mono text-xs overflow-x-auto">
+          <div className="bg-[#202225] p-3 rounded-md font-mono text-xs overflow-x-auto">
             {`{
   "embeds": [{
     "title": "Embed Title",
@@ -104,14 +126,14 @@ code block
           </div>
           <p>
             Discord embeds support many more properties like author, image, thumbnail, and timestamp. 
-            See the <a href="https://discord.com/developers/docs/resources/channel#embed-object" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">official Discord documentation</a> for more details.
+            See the <a href="https://discord.com/developers/docs/resources/channel#embed-object" target="_blank" rel="noopener noreferrer" className="text-[#5865F2] hover:underline">official Discord documentation</a> for more details.
           </p>
         </section>
         
-        <div className="mt-4 pt-4 border-t border-border/30 text-xs text-white/60">
+        <div className="mt-4 pt-4 border-t border-[#202225] text-xs text-white/60">
           <p>
             For comprehensive information about Discord webhooks, visit the 
-            <a href="https://discord.com/developers/docs/resources/webhook" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline ml-1">
+            <a href="https://discord.com/developers/docs/resources/webhook" target="_blank" rel="noopener noreferrer" className="text-[#5865F2] hover:underline ml-1">
               Discord Developer Documentation
             </a>.
           </p>
