@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import WebhookForm from "@/components/WebhookForm";
 import Footer from "@/components/Footer";
-import { Bell, User, Search, LayoutGrid, ChevronRight, Webhook } from "lucide-react";
+import { Bell, User, Search, LayoutGrid, Webhook } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import WebhookHeader from "@/components/WebhookHeader";
 
@@ -31,19 +31,13 @@ const Index: React.FC = () => {
               </span>
             </div>
             
-            {/* Desktop Nav Items */}
+            {/* Desktop Nav Items - simplified */}
             <div className="hidden md:flex items-center gap-6">
               <span className="text-sm font-medium text-primary cursor-pointer hover:underline">
                 Tools
               </span>
               <span className="text-sm font-medium text-white/70 cursor-pointer hover:text-white transition-colors">
                 Documentation
-              </span>
-              <span className="text-sm font-medium text-white/70 cursor-pointer hover:text-white transition-colors">
-                Templates
-              </span>
-              <span className="text-sm font-medium text-white/70 cursor-pointer hover:text-white transition-colors">
-                Integrations
               </span>
             </div>
           </div>
@@ -73,14 +67,6 @@ const Index: React.FC = () => {
       </header>
       
       <main className="flex-1 py-10 px-4 max-w-[1200px] mx-auto w-full">
-        <div className="flex flex-col gap-2 mb-6">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span>Integrations</span>
-            <ChevronRight className="h-3 w-3" />
-            <span className="text-primary">Webhook Tools</span>
-          </div>
-        </div>
-        
         <WebhookHeader />
         <WebhookForm />
       </main>
