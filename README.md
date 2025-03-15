@@ -11,7 +11,6 @@ A modern web application for easily sending messages to Discord webhooks with su
 - **Custom Identity**: Set custom usernames and avatar URLs for your webhook messages
 - **Security**: Built-in rate limiting and security measures
 - **Validation**: Ensures all webhook content follows Discord's requirements
-- **Persistence**: Remembers your webhook URLs and settings for convenience
 
 ## Getting Started
 
