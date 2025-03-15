@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import WebhookForm from "@/components/WebhookForm";
 import Footer from "@/components/Footer";
-import { Bell, User, Search, LayoutGrid, ChevronRight } from "lucide-react";
+import { Bell, User, Search, LayoutGrid, ChevronRight, Webhook } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Index: React.FC = () => {
