@@ -4,6 +4,7 @@ import WebhookForm from "@/components/WebhookForm";
 import Footer from "@/components/Footer";
 import { Bell, User, Search, LayoutGrid, ChevronRight, Webhook } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import WebhookHeader from "@/components/WebhookHeader";
 
 const Index: React.FC = () => {
   useEffect(() => {
@@ -79,6 +80,8 @@ const Index: React.FC = () => {
             <span className="text-primary">Webhook Tools</span>
           </div>
         </div>
+        
+        <WebhookHeader />
         <WebhookForm />
       </main>
       
