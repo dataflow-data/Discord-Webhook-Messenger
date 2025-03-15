@@ -2,9 +2,9 @@
 import React, { useEffect } from "react";
 import WebhookForm from "@/components/WebhookForm";
 import Footer from "@/components/Footer";
-import { Bell, User, Search, LayoutGrid, Webhook } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Webhook } from "lucide-react";
 import WebhookHeader from "@/components/WebhookHeader";
+import WebhookDocumentation from "@/components/WebhookDocumentation";
 
 const Index: React.FC = () => {
   useEffect(() => {
@@ -33,34 +33,9 @@ const Index: React.FC = () => {
             
             {/* Desktop Nav Items - simplified */}
             <div className="hidden md:flex items-center gap-6">
-              <span className="text-sm font-medium text-primary cursor-pointer hover:underline">
-                Tools
-              </span>
-              <span className="text-sm font-medium text-white/70 cursor-pointer hover:text-white transition-colors">
+              <a href="#documentation" className="text-sm font-medium text-white/70 cursor-pointer hover:text-white transition-colors">
                 Documentation
-              </span>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-3 md:gap-5">
-            <div className="hidden md:flex items-center gap-3">
-              <button className="text-white/70 hover:text-white transition-colors p-1.5 hover:bg-white/5 rounded-full">
-                <Search className="h-5 w-5" />
-              </button>
-              <button className="text-white/70 hover:text-white transition-colors p-1.5 hover:bg-white/5 rounded-full">
-                <Bell className="h-5 w-5" />
-              </button>
-            </div>
-            
-            <Button variant="secondary" className="bg-secondary/60 border border-border/30 hover:bg-secondary/80">
-              <LayoutGrid className="h-4 w-4 mr-2" />
-              Dashboard
-            </Button>
-            
-            <div className="hidden md:flex ml-2">
-              <Button variant="ghost" size="icon" className="rounded-full bg-white/5 hover:bg-white/10">
-                <User className="h-4 w-4 text-primary" />
-              </Button>
+              </a>
             </div>
           </div>
         </div>
@@ -68,7 +43,14 @@ const Index: React.FC = () => {
       
       <main className="flex-1 py-10 px-4 max-w-[1200px] mx-auto w-full">
         <WebhookHeader />
-        <WebhookForm />
+        <div className="flex flex-col lg:flex-row gap-10 items-start">
+          <div className="w-full lg:w-1/2">
+            <WebhookForm />
+          </div>
+          <div id="documentation" className="w-full lg:w-1/2">
+            <WebhookDocumentation />
+          </div>
+        </div>
       </main>
       
       <Footer />

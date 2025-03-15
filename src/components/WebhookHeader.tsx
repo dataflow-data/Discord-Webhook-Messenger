@@ -19,7 +19,7 @@ const WebhookHeader: React.FC<WebhookHeaderProps> = ({ className }) => {
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
-                Webhook Messenger
+                Discord Webhook Messenger
               </h1>
               <Badge 
                 variant="secondary" 
@@ -29,22 +29,22 @@ const WebhookHeader: React.FC<WebhookHeaderProps> = ({ className }) => {
               </Badge>
             </div>
             <p className="text-sm text-muted-foreground">
-              Simple, powerful webhook messaging
+              Send messages directly to Discord
             </p>
           </div>
         </div>
         
         <div className="border-b border-border/30 pb-6 mt-2 w-full">
           <p className="text-muted-foreground leading-relaxed">
-            Send messages directly to any platform that supports webhooks.
-            Configure your webhook below to start sending messages instantly.
+            Send messages to Discord channels using webhooks. Enter your Discord webhook URL,
+            compose your message with markdown formatting, and send it instantly.
           </p>
         </div>
       </div>
       
       <div className="mt-6 flex items-center gap-3 bg-gradient-to-r from-primary/10 to-transparent p-4 rounded-lg text-sm text-white/90 border border-primary/20">
         <Info className="h-5 w-5 text-primary" />
-        <p>Enter your webhook URL below, compose a message, and click send to deliver it instantly.</p>
+        <p>Enter your Discord webhook URL below, compose a message with markdown, and click send to deliver it instantly.</p>
       </div>
     </div>
   );
