@@ -92,7 +92,7 @@ code block
 \`\`\`</div>
             <div className="p-2">→ block of code</div>
 
-            <div className="bg-[#202225] p-2 rounded-md font-mono text-xs">&gt; quote</div>
+            <div className="bg-[#202225] p-2 rounded-md font-mono text-xs">> quote</div>
             <div className="p-2">→ blockquote</div>
           </div>
         </section>
