@@ -51,7 +51,7 @@ const Index: React.FC = () => {
         <Alert className="bg-primary/5 border-primary/30 mb-8">
           <ShieldAlert className="h-4 w-4 text-primary" />
           <AlertDescription className="text-sm">
-            This service implements rate limiting and security measures to prevent abuse. Misuse may result in temporary blocks.
+            This service implements advanced rate limiting and security measures to prevent abuse. Misuse may result in temporary blocks with increasing duration.
           </AlertDescription>
         </Alert>
         
@@ -65,24 +65,32 @@ const Index: React.FC = () => {
             <div id="security" className="mt-8 p-5 bg-card/60 rounded-lg border border-border/30">
               <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
                 <ShieldAlert className="h-4 w-4 text-primary" />
-                Security Measures
+                Enhanced Security Measures
               </h3>
               <ul className="space-y-2 text-sm text-white/80">
                 <li className="flex gap-2 items-start">
                   <span className="bg-primary/20 p-1 rounded-full text-primary text-xs mt-0.5">•</span>
-                  <span>Rate limiting: Max 10 messages per 5 minutes</span>
+                  <span>Progressive rate limiting: Block duration increases with repeated violations</span>
                 </li>
                 <li className="flex gap-2 items-start">
                   <span className="bg-primary/20 p-1 rounded-full text-primary text-xs mt-0.5">•</span>
-                  <span>Content filtering to prevent abuse and spam</span>
+                  <span>Content filtering to prevent spam, phishing, and malicious content</span>
                 </li>
                 <li className="flex gap-2 items-start">
                   <span className="bg-primary/20 p-1 rounded-full text-primary text-xs mt-0.5">•</span>
-                  <span>Temporary blocks for excessive usage</span>
+                  <span>Suspicious pattern detection for username and avatar impersonation</span>
                 </li>
                 <li className="flex gap-2 items-start">
                   <span className="bg-primary/20 p-1 rounded-full text-primary text-xs mt-0.5">•</span>
-                  <span>URL validation and sanitization</span>
+                  <span>URL validation and sanitization with strict image format requirements</span>
+                </li>
+                <li className="flex gap-2 items-start">
+                  <span className="bg-primary/20 p-1 rounded-full text-primary text-xs mt-0.5">•</span>
+                  <span>Security event logging and analysis to detect abuse patterns</span>
+                </li>
+                <li className="flex gap-2 items-start">
+                  <span className="bg-primary/20 p-1 rounded-full text-primary text-xs mt-0.5">•</span>
+                  <span>Anti-spam measures: Detection of character repetition, excessive emoji, ASCII art</span>
                 </li>
               </ul>
             </div>

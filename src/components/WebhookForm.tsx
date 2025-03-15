@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Send, ChevronDown, ChevronUp, MessageSquare, Webhook, Info, AlertCircle, CheckCircle2, Image, Shield } from "lucide-react";
+import { Send, ChevronDown, ChevronUp, MessageSquare, Webhook, Info, AlertCircle, CheckCircle2, Image, Shield, Clock, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,7 +11,17 @@ import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const WebhookForm: React.FC = () => {
-  const { state, handleUrlChange, updateField, sendMessage, usageCount, isBlockedTemporarily } = useWebhook();
+  const { 
+    state, 
+    handleUrlChange, 
+    updateField, 
+    sendMessage, 
+    usageCount, 
+    isBlockedTemporarily,
+    formattedBlockTime,
+    securityViolations
+  } = useWebhook();
+  
   const [showOptional, setShowOptional] = useState(false);
   const [showSecurityAlert, setShowSecurityAlert] = useState(false);
   
@@ -61,9 +71,20 @@ const WebhookForm: React.FC = () => {
       {isBlockedTemporarily && (
         <Alert className="mb-4 bg-destructive/10 border-destructive/30 text-destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Rate Limit Exceeded</AlertTitle>
+          <AlertTitle>Security Block Active</AlertTitle>
           <AlertDescription>
-            You've sent too many messages in a short period. Please wait before trying again.
+            <p>Your access is temporarily blocked due to rate limiting or security violations.</p>
+            <div className="flex items-center gap-2 mt-1.5 bg-destructive/5 p-2 rounded-md">
+              <Clock className="h-4 w-4" />
+              <span className="font-mono">{formattedBlockTime()}</span>
+              <span className="text-xs">remaining</span>
+            </div>
+            {securityViolations > 1 && (
+              <p className="mt-2 text-xs flex items-center gap-1.5">
+                <AlertTriangle className="h-3.5 w-3.5" />
+                Multiple violations detected. Block duration increases with each violation.
+              </p>
+            )}
           </AlertDescription>
         </Alert>
       )}
@@ -171,7 +192,7 @@ const WebhookForm: React.FC = () => {
                           maxLength={80}
                         />
                         <p className="text-xs text-muted-foreground mt-1">
-                          Override the default username
+                          Override the default username (blocked terms: discord, admin, mod, system, etc.)
                         </p>
                       </div>
                       
@@ -192,7 +213,7 @@ const WebhookForm: React.FC = () => {
                           disabled={isBlockedTemporarily}
                         />
                         <p className="text-xs text-muted-foreground mt-1">
-                          Override the default avatar image
+                          Override the default avatar image (only https:// URLs with .jpg, .png, .gif, or .webp)
                         </p>
                       </div>
                     </div>
@@ -281,6 +302,36 @@ const WebhookForm: React.FC = () => {
           </div>
         </div>
       </Card>
+      
+      {/* Security information for users */}
+      <div className="mt-6 p-4 rounded-lg bg-card/40 border border-border/30 text-sm">
+        <h3 className="text-primary font-medium mb-2 flex items-center gap-2">
+          <Shield className="h-4 w-4" />
+          Enhanced Security Measures
+        </h3>
+        <ul className="space-y-1.5 text-xs text-muted-foreground">
+          <li className="flex items-start gap-2">
+            <div className="min-w-4 h-4 rounded-full bg-primary/10 flex items-center justify-center text-primary text-[10px]">•</div>
+            <span>Progressive rate limiting: Block duration increases with repeated violations</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <div className="min-w-4 h-4 rounded-full bg-primary/10 flex items-center justify-center text-primary text-[10px]">•</div>
+            <span>Enhanced content filtering: Blocks malicious content, spam patterns, and prohibited words</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <div className="min-w-4 h-4 rounded-full bg-primary/10 flex items-center justify-center text-primary text-[10px]">•</div>
+            <span>URL validation: Only allows secure image URLs with common formats (.jpg, .png, .gif, .webp)</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <div className="min-w-4 h-4 rounded-full bg-primary/10 flex items-center justify-center text-primary text-[10px]">•</div>
+            <span>Username restrictions: Prevents impersonation of Discord staff or system accounts</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <div className="min-w-4 h-4 rounded-full bg-primary/10 flex items-center justify-center text-primary text-[10px]">•</div>
+            <span>Security event logging: All suspicious activity is logged for review</span>
+          </li>
+        </ul>
+      </div>
     </div>
   );
 };

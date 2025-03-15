@@ -1,6 +1,14 @@
 
 import { useState, useEffect } from "react";
-import { WebhookMessageData, sendWebhookMessage, isValidWebhookUrl, validateContent, validateUsername } from "@/services/webhookService";
+import { 
+  WebhookMessageData, 
+  sendWebhookMessage, 
+  isValidWebhookUrl, 
+  validateContent, 
+  validateUsername,
+  validateAvatarUrl,
+  getSecurityLogs
+} from "@/services/webhookService";
 import { toast } from "sonner";
 
 export interface WebhookState {
@@ -12,10 +20,11 @@ export interface WebhookState {
   isValidUrl: boolean;
 }
 
-// Rate limiting constants
+// Security constants
 const MAX_MESSAGES_PERIOD = 10;
 const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
 const TEMP_BLOCK_DURATION_MS = 10 * 60 * 1000; // 10 minutes
+const PROGRESSIVE_BLOCK_MULTIPLIER = 2; // Doubles block time for repeated violations
 
 export const useWebhook = () => {
   // Initialize state from localStorage if available
@@ -53,6 +62,11 @@ export const useWebhook = () => {
     return savedHistory ? JSON.parse(savedHistory) : [];
   });
   
+  // Track security violations for progressive blocking
+  const [securityViolations, setSecurityViolations] = useState<number>(() => {
+    return parseInt(localStorage.getItem("webhook-security-violations") || "0", 10);
+  });
+  
   const [isBlockedTemporarily, setIsBlockedTemporarily] = useState<boolean>(() => {
     const blockUntil = localStorage.getItem("webhook-blocked-until");
     if (blockUntil) {
@@ -61,8 +75,10 @@ export const useWebhook = () => {
     }
     return false;
   });
+
+  const [blockRemainingTime, setBlockRemainingTime] = useState<number>(0);
   
-  // Check if user is still blocked on mount
+  // Check if user is still blocked on mount and update remaining time
   useEffect(() => {
     const blockUntil = localStorage.getItem("webhook-blocked-until");
     if (blockUntil) {
@@ -70,19 +86,30 @@ export const useWebhook = () => {
       if (blockTime > Date.now()) {
         setIsBlockedTemporarily(true);
         
-        // Set timeout to unblock
-        const timeoutId = setTimeout(() => {
-          setIsBlockedTemporarily(false);
-          localStorage.removeItem("webhook-blocked-until");
-        }, blockTime - Date.now());
+        // Update remaining time every second
+        const interval = setInterval(() => {
+          const remaining = Math.max(0, blockTime - Date.now());
+          setBlockRemainingTime(remaining);
+          
+          if (remaining === 0) {
+            setIsBlockedTemporarily(false);
+            localStorage.removeItem("webhook-blocked-until");
+            clearInterval(interval);
+          }
+        }, 1000);
         
-        return () => clearTimeout(timeoutId);
+        return () => clearInterval(interval);
       } else {
         // No longer blocked
         localStorage.removeItem("webhook-blocked-until");
       }
     }
   }, []);
+  
+  // Save security violations to localStorage
+  useEffect(() => {
+    localStorage.setItem("webhook-security-violations", securityViolations.toString());
+  }, [securityViolations]);
   
   // Save usage history to localStorage
   useEffect(() => {
@@ -115,6 +142,14 @@ export const useWebhook = () => {
     timestamp => Date.now() - timestamp < RATE_LIMIT_WINDOW_MS
   ).length;
   
+  // Format remaining block time as mm:ss
+  const formattedBlockTime = () => {
+    if (!blockRemainingTime) return "0:00";
+    const minutes = Math.floor(blockRemainingTime / 60000);
+    const seconds = Math.floor((blockRemainingTime % 60000) / 1000);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+  
   // Handle URL change and validation
   const handleUrlChange = (url: string) => {
     setState({
@@ -140,6 +175,33 @@ export const useWebhook = () => {
     });
   };
   
+  // Block user temporarily with progressive duration
+  const applyTemporaryBlock = (reason: string) => {
+    // Increment violation count
+    const newViolationCount = securityViolations + 1;
+    setSecurityViolations(newViolationCount);
+    
+    // Calculate block duration with progressive increase
+    const blockDuration = TEMP_BLOCK_DURATION_MS * Math.pow(PROGRESSIVE_BLOCK_MULTIPLIER, Math.min(newViolationCount - 1, 3));
+    const blockUntil = Date.now() + blockDuration;
+    
+    localStorage.setItem("webhook-blocked-until", blockUntil.toString());
+    setIsBlockedTemporarily(true);
+    setBlockRemainingTime(blockDuration);
+    
+    // Format minutes for display
+    const blockMinutes = Math.ceil(blockDuration / 60000);
+    
+    toast.error(`${reason} You're temporarily blocked for ${blockMinutes} minutes.`);
+    
+    // Set timeout to automatically unblock
+    setTimeout(() => {
+      setIsBlockedTemporarily(false);
+      localStorage.removeItem("webhook-blocked-until");
+      setBlockRemainingTime(0);
+    }, blockDuration);
+  };
+  
   // Perform rate limiting check
   const checkRateLimit = (): boolean => {
     if (isBlockedTemporarily) {
@@ -148,40 +210,30 @@ export const useWebhook = () => {
     
     // If we're over the threshold, block temporarily
     if (usageCount >= MAX_MESSAGES_PERIOD) {
-      const blockUntil = Date.now() + TEMP_BLOCK_DURATION_MS;
-      localStorage.setItem("webhook-blocked-until", blockUntil.toString());
-      setIsBlockedTemporarily(true);
-      
-      // Set timeout to automatically unblock
-      setTimeout(() => {
-        setIsBlockedTemporarily(false);
-        localStorage.removeItem("webhook-blocked-until");
-      }, TEMP_BLOCK_DURATION_MS);
-      
-      toast.error(`Rate limit exceeded. You can send messages again in ${TEMP_BLOCK_DURATION_MS / 60000} minutes.`);
+      applyTemporaryBlock("Rate limit exceeded.");
       return false;
     }
     
     return true;
   };
   
-  // Send message function
-  const sendMessage = async () => {
+  // Check if validations pass
+  const validateInputs = (): boolean => {
     if (!state.isValidUrl) {
       toast.error("Please enter a valid webhook URL");
-      return;
+      return false;
     }
     
     if (!state.content.trim()) {
       toast.error("Message cannot be empty");
-      return;
+      return false;
     }
     
     // Check additional content validation
     const contentValidation = validateContent(state.content);
     if (!contentValidation.valid) {
       toast.error(contentValidation.reason || "Invalid message content");
-      return;
+      return false;
     }
     
     // Check username validation if provided
@@ -189,8 +241,26 @@ export const useWebhook = () => {
       const usernameValidation = validateUsername(state.username);
       if (!usernameValidation.valid) {
         toast.error(usernameValidation.reason || "Invalid username");
-        return;
+        return false;
       }
+    }
+    
+    // Check avatar URL validation if provided
+    if (state.avatarUrl) {
+      const avatarValidation = validateAvatarUrl(state.avatarUrl);
+      if (!avatarValidation.valid) {
+        toast.error(avatarValidation.reason || "Invalid avatar URL");
+        return false;
+      }
+    }
+    
+    return true;
+  };
+  
+  // Send message function
+  const sendMessage = async () => {
+    if (!validateInputs()) {
+      return;
     }
     
     // Check rate limiting
@@ -226,6 +296,11 @@ export const useWebhook = () => {
         resetContent();
       } else {
         toast.error(result.message);
+        
+        // Apply block if security action is returned
+        if (result.securityAction) {
+          applyTemporaryBlock("Security violation detected.");
+        }
       }
     } catch (error) {
       toast.error("Failed to send message. Please try again.");
@@ -238,6 +313,19 @@ export const useWebhook = () => {
     }
   };
   
+  // Reset security violations (for testing)
+  const resetSecurityViolations = () => {
+    setSecurityViolations(0);
+    localStorage.setItem("webhook-security-violations", "0");
+  };
+  
+  // Clear security block (for testing)
+  const clearSecurityBlock = () => {
+    setIsBlockedTemporarily(false);
+    localStorage.removeItem("webhook-blocked-until");
+    setBlockRemainingTime(0);
+  };
+  
   return {
     state,
     handleUrlChange,
@@ -246,5 +334,11 @@ export const useWebhook = () => {
     sendMessage,
     usageCount,
     isBlockedTemporarily,
+    blockRemainingTime,
+    formattedBlockTime,
+    securityViolations,
+    resetSecurityViolations,
+    clearSecurityBlock,
+    getSecurityLogs
   };
 };
