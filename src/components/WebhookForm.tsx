@@ -1,6 +1,6 @@
 
-import React, { useState } from "react";
-import { Send, User, Image, ChevronDown, ChevronUp, MessageSquare, Webhook, Info, AlertCircle, CheckCircle2 } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Send, ChevronDown, ChevronUp, MessageSquare, Webhook, Info, AlertCircle, CheckCircle2, Image, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,11 +8,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { useWebhook } from "@/hooks/useWebhook";
 import { cn } from "@/lib/utils";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const WebhookForm: React.FC = () => {
-  const { state, handleUrlChange, updateField, sendMessage } = useWebhook();
+  const { state, handleUrlChange, updateField, sendMessage, usageCount, isBlockedTemporarily } = useWebhook();
   const [showOptional, setShowOptional] = useState(false);
+  const [showSecurityAlert, setShowSecurityAlert] = useState(false);
+  
+  // Show security alert to first-time users
+  useEffect(() => {
+    const hasSeenAlert = localStorage.getItem("security-alert-shown");
+    if (!hasSeenAlert) {
+      setShowSecurityAlert(true);
+      localStorage.setItem("security-alert-shown", "true");
+    }
+  }, []);
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,6 +39,45 @@ const WebhookForm: React.FC = () => {
 
   return (
     <div className="webhook-container animate-in">
+      {showSecurityAlert && (
+        <Alert className="mb-4 bg-amber-500/10 border-amber-500/30 text-amber-500">
+          <Shield className="h-4 w-4" />
+          <AlertTitle>Responsible Use Notice</AlertTitle>
+          <AlertDescription className="text-sm">
+            This tool sends messages to Discord webhooks. Please use responsibly and respect Discord's Terms of Service.
+            Abuse may result in IP blocking or other security measures.
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="mt-2 bg-background/30 border-amber-500/20 hover:bg-background/50 text-amber-500"
+              onClick={() => setShowSecurityAlert(false)}
+            >
+              I understand
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      {isBlockedTemporarily && (
+        <Alert className="mb-4 bg-destructive/10 border-destructive/30 text-destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Rate Limit Exceeded</AlertTitle>
+          <AlertDescription>
+            You've sent too many messages in a short period. Please wait before trying again.
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      {usageCount > 8 && !isBlockedTemporarily && (
+        <Alert className="mb-4 bg-amber-500/10 border-amber-500/30 text-amber-500">
+          <Info className="h-4 w-4" />
+          <AlertTitle>Usage Limit Approaching</AlertTitle>
+          <AlertDescription>
+            You've sent {usageCount} messages. Rate limits may apply after 10 messages in a 5-minute period.
+          </AlertDescription>
+        </Alert>
+      )}
+      
       <Card className="app-card shadow-lg overflow-hidden animate-in card-gradient border-border/30 max-w-3xl mx-auto">
         <div className="flex flex-col">
           {/* Card Header */}
@@ -58,7 +107,7 @@ const WebhookForm: React.FC = () => {
                     <Input
                       id="webhookUrl"
                       type="url"
-                      placeholder="https://example.com/webhooks/..."
+                      placeholder="https://discord.com/api/webhooks/..."
                       value={state.webhookUrl}
                       onChange={(e) => handleUrlChange(e.target.value)}
                       className={cn(
@@ -66,6 +115,7 @@ const WebhookForm: React.FC = () => {
                         state.webhookUrl && !state.isValidUrl && "border-destructive focus:ring-destructive/50"
                       )}
                       required
+                      disabled={isBlockedTemporarily}
                     />
                     {state.webhookUrl && (
                       <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -95,6 +145,7 @@ const WebhookForm: React.FC = () => {
                     type="button"
                     onClick={() => setShowOptional(!showOptional)}
                     className="text-xs flex items-center gap-1.5 text-primary hover:text-primary/80 transition-colors mb-2 focus:outline-none"
+                    disabled={isBlockedTemporarily}
                   >
                     {showOptional ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
                     {showOptional ? "Hide" : "Show"} sender identity
@@ -116,6 +167,8 @@ const WebhookForm: React.FC = () => {
                           value={state.username}
                           onChange={(e) => updateField("username", e.target.value)}
                           className="form-input"
+                          disabled={isBlockedTemporarily}
+                          maxLength={80}
                         />
                         <p className="text-xs text-muted-foreground mt-1">
                           Override the default username
@@ -136,6 +189,7 @@ const WebhookForm: React.FC = () => {
                           value={state.avatarUrl}
                           onChange={(e) => updateField("avatarUrl", e.target.value)}
                           className="form-input"
+                          disabled={isBlockedTemporarily}
                         />
                         <p className="text-xs text-muted-foreground mt-1">
                           Override the default avatar image
@@ -163,6 +217,8 @@ const WebhookForm: React.FC = () => {
                       onKeyDown={handleKeyDown}
                       className="message-field min-h-[120px]"
                       required
+                      disabled={isBlockedTemporarily}
+                      maxLength={2000}
                     />
                     
                     <div className="absolute bottom-2 right-2 flex gap-1.5">
@@ -170,6 +226,7 @@ const WebhookForm: React.FC = () => {
                         type="button" 
                         className="p-1.5 rounded bg-secondary/30 hover:bg-secondary/50 transition-colors text-white/70 hover:text-white"
                         title="Format text"
+                        disabled={isBlockedTemporarily}
                       >
                         <MessageSquare className="h-3.5 w-3.5" />
                       </button>
@@ -177,24 +234,32 @@ const WebhookForm: React.FC = () => {
                         type="button" 
                         className="p-1.5 rounded bg-secondary/30 hover:bg-secondary/50 transition-colors text-white/70 hover:text-white"
                         title="Add image"
+                        disabled={isBlockedTemporarily}
                       >
                         <Image className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1">
-                    <span className="inline-flex items-center justify-center h-4 w-4 rounded-sm bg-muted text-[10px] font-medium">⌘</span>
-                    <span>+</span>
-                    <span className="inline-flex items-center justify-center h-4 w-4 rounded-sm bg-muted text-[10px] font-medium">↵</span>
-                    <span className="ml-1">to send message</span>
-                  </p>
+                  <div className="flex justify-between mt-1.5">
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <span className="inline-flex items-center justify-center h-4 w-4 rounded-sm bg-muted text-[10px] font-medium">⌘</span>
+                      <span>+</span>
+                      <span className="inline-flex items-center justify-center h-4 w-4 rounded-sm bg-muted text-[10px] font-medium">↵</span>
+                      <span className="ml-1">to send message</span>
+                    </p>
+                    {state.content && (
+                      <p className="text-xs text-muted-foreground">
+                        {state.content.length}/2000
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
               
               <div className="pt-3 border-t border-border/30 flex justify-end">
                 <Button
                   type="submit"
-                  disabled={!state.isValidUrl || !state.content.trim() || state.isSending}
+                  disabled={!state.isValidUrl || !state.content.trim() || state.isSending || isBlockedTemporarily}
                   className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white"
                 >
                   {state.isSending ? (

@@ -2,9 +2,10 @@
 import React, { useEffect } from "react";
 import WebhookForm from "@/components/WebhookForm";
 import Footer from "@/components/Footer";
-import { Webhook } from "lucide-react";
+import { Webhook, ShieldAlert } from "lucide-react";
 import WebhookHeader from "@/components/WebhookHeader";
 import WebhookDocumentation from "@/components/WebhookDocumentation";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Index: React.FC = () => {
   useEffect(() => {
@@ -36,6 +37,9 @@ const Index: React.FC = () => {
               <a href="#documentation" className="text-sm font-medium text-white/70 cursor-pointer hover:text-white transition-colors">
                 Documentation
               </a>
+              <a href="#security" className="text-sm font-medium text-white/70 cursor-pointer hover:text-white transition-colors">
+                Security
+              </a>
             </div>
           </div>
         </div>
@@ -43,12 +47,45 @@ const Index: React.FC = () => {
       
       <main className="flex-1 py-12 px-4 md:px-6 max-w-[1400px] mx-auto w-full">
         <WebhookHeader />
+        
+        <Alert className="bg-primary/5 border-primary/30 mb-8">
+          <ShieldAlert className="h-4 w-4 text-primary" />
+          <AlertDescription className="text-sm">
+            This service implements rate limiting and security measures to prevent abuse. Misuse may result in temporary blocks.
+          </AlertDescription>
+        </Alert>
+        
         <div className="flex flex-col lg:flex-row gap-8 items-start">
           <div className="w-full lg:w-[55%]">
             <WebhookForm />
           </div>
           <div id="documentation" className="w-full lg:w-[45%] lg:sticky lg:top-32">
             <WebhookDocumentation />
+            
+            <div id="security" className="mt-8 p-5 bg-card/60 rounded-lg border border-border/30">
+              <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                <ShieldAlert className="h-4 w-4 text-primary" />
+                Security Measures
+              </h3>
+              <ul className="space-y-2 text-sm text-white/80">
+                <li className="flex gap-2 items-start">
+                  <span className="bg-primary/20 p-1 rounded-full text-primary text-xs mt-0.5">•</span>
+                  <span>Rate limiting: Max 10 messages per 5 minutes</span>
+                </li>
+                <li className="flex gap-2 items-start">
+                  <span className="bg-primary/20 p-1 rounded-full text-primary text-xs mt-0.5">•</span>
+                  <span>Content filtering to prevent abuse and spam</span>
+                </li>
+                <li className="flex gap-2 items-start">
+                  <span className="bg-primary/20 p-1 rounded-full text-primary text-xs mt-0.5">•</span>
+                  <span>Temporary blocks for excessive usage</span>
+                </li>
+                <li className="flex gap-2 items-start">
+                  <span className="bg-primary/20 p-1 rounded-full text-primary text-xs mt-0.5">•</span>
+                  <span>URL validation and sanitization</span>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </main>
