@@ -1,7 +1,7 @@
 
 import React from "react";
 import { cn } from "@/lib/utils";
-import { GitHub, Twitter } from "lucide-react";
+import { Github, Twitter } from "lucide-react";
 
 interface FooterProps {
   className?: string;
@@ -35,7 +35,7 @@ const Footer: React.FC<FooterProps> = ({ className }) => {
             
             <div className="flex items-center gap-3">
               <a href="#" className="text-white/70 hover:text-white transition-colors">
-                <GitHub className="h-5 w-5" />
+                <Github className="h-5 w-5" />
               </a>
               <a href="#" className="text-white/70 hover:text-white transition-colors">
                 <Twitter className="h-5 w-5" />
