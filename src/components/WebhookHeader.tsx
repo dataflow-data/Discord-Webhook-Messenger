@@ -1,7 +1,7 @@
 
 import React from "react";
 import { cn } from "@/lib/utils";
-import { Webhook, Info, Discord } from "lucide-react";
+import { Webhook, Info, MessageCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface WebhookHeaderProps {
