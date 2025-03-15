@@ -1,34 +1,30 @@
-# Node.js
+# Node.js dependencies
 node_modules/
 
 # Build output
 dist/
 build/
 
+# Vite-specific
+.vite/
+
 # Log files
 *.log
 
-# Dependency directories
+# Dependency manager logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# OS-specific files
-.DS_Store
-Thumbs.db
-
-# Vite-specific
-.vite/
+# IDE/editor specific files
+.vscode/
+.idea/
 
 # TypeScript
 *.tsbuildinfo
 
-# IDE or editor-specific files
-.vscode/
-.idea/
-
-# Local environment files
+# Environment variables
 .env
 
-# Bun lock file (if you're using Bun for package management)
+# Bun lock file (if using Bun package manager)
 bun.lockb
