@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 @import url('https://rsms.me/inter/inter.css');
 
@@ -7,44 +8,44 @@
 
 @layer base {
   :root {
-    --background: 227 10% 25%;
+    --background: 222 47% 11%;
     --foreground: 210 40% 98%;
 
-    --card: 225 6% 20%;
+    --card: 219 45% 13%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 225 6% 20%;
+    --popover: 219 45% 13%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 235 86% 65%;
+    --primary: 250 95% 76%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 228 6% 17%;
+    --secondary: 217 33% 17%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 228 6% 17%;
+    --muted: 217 33% 15%;
     --muted-foreground: 215 20% 65%;
 
-    --accent: 235 86% 65%;
+    --accent: 250 95% 76%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 228 10% 14%;
-    --input: 228 10% 14%;
-    --ring: 235 85% 65%;
+    --border: 216 34% 17%;
+    --input: 216 34% 17%;
+    --ring: 250 95% 76%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 223 7% 21%;
+    --sidebar-background: 222 47% 11%;
     --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 235 85% 65%;
+    --sidebar-primary: 250 95% 76%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 225 6% 13%;
+    --sidebar-accent: 220 33% 17%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 228 10% 14%;
-    --sidebar-ring: 235 85% 65%;
+    --sidebar-border: 216 34% 17%;
+    --sidebar-ring: 250 95% 76%;
   }
 }
 
@@ -99,18 +100,6 @@
   .card-gradient {
     @apply bg-gradient-to-b from-card to-card/80;
   }
-  
-  .discord-mention {
-    @apply bg-primary/20 text-primary px-1 rounded hover:bg-primary/30 transition-colors;
-  }
-  
-  .discord-embed {
-    @apply border-l-4 border-primary bg-secondary/50 rounded-md p-3;
-  }
-  
-  .discord-code {
-    @apply bg-[#202225] rounded-md p-3 font-mono text-sm;
-  }
 }
 
 @layer utilities {
@@ -132,7 +121,6 @@
   position: relative;
   max-width: 100vw;
   overflow-x: hidden;
-  background-color: #36393F;
 }
 
 .scrollbar-none {
@@ -149,31 +137,13 @@
   overflow-y: auto;
   min-height: 120px;
   transition: all 0.2s ease;
-  @apply bg-[#40444B] border-[#202225]/50 rounded-lg input-focus;
+  @apply bg-secondary/50 border-border/50 rounded-lg input-focus;
 }
 
 .message-field:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.4);
+  box-shadow: 0 0 0 2px rgba(114, 137, 218, 0.3);
   @apply border-primary/60;
-}
-
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #2E3338;
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #202225;
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
 }
 
 .webhook-container {
@@ -212,11 +182,11 @@
 }
 
 .form-input {
-  @apply bg-[#40444B] border-[#202225]/60 text-white input-focus rounded-lg;
+  @apply bg-secondary/60 border-border/60 text-white input-focus rounded-lg;
 }
 
 .glow-effect {
-  box-shadow: 0 0 15px -3px rgba(88, 101, 242, 0.5);
+  box-shadow: 0 0 15px -3px hsl(var(--primary));
 }
 
 .glow-container {
