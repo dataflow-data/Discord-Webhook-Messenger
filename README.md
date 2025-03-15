@@ -58,16 +58,6 @@ To serve the production build locally:
 npm run preview
 ```
 
-## Security Measures
-
-The application implements several security features:
-
-- Rate limiting to prevent abuse
-- Progressive blocking for violations
-- Content validation
-- URL sanitization
-- Size restrictions according to Discord limits
-
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
