@@ -3,8 +3,6 @@
 
 A modern web application for easily sending messages to Discord webhooks with support for text messages and rich embeds.
 
-![Discord Webhook Messenger](https://i.imgur.com/your-screenshot-here.png)
-
 ## Features
 
 - **Text Messages**: Send simple text messages to Discord channels
@@ -20,7 +18,7 @@ A modern web application for easily sending messages to Discord webhooks with su
 ### Prerequisites
 
 - Node.js (v16+) and npm
-- Discord webhook URL from a server where you have permissions
+- Discord webhook URL from a server where you have permissions to obtain a webhook.
 
 ### Installation
 
@@ -44,7 +42,7 @@ The app will be available at http://localhost:5173 (or the port displayed in you
 
 ## Usage
 
-1. Enter your Discord webhook URL (found in Server Settings > Integrations > Webhooks)
+1. Enter your Discord webhook URL (found in Channel Settings > Integrations > Webhooks)
 2. Choose between text message or rich embed
 3. Fill in the message content or embed details
 4. Optionally add images (either URL or uploaded)
@@ -64,7 +62,7 @@ The app will be available at http://localhost:5173 (or the port displayed in you
 
 ## Building for Production
 
-To build the application for production:
+To build the production application:
 
 ```sh
 npm run build
@@ -80,32 +78,12 @@ To serve the production build locally:
 npm run preview
 ```
 
-## Deploying
-
-This application can be deployed to any static hosting service:
-
-- **Netlify**: Connect your repository or drag and drop the `dist` folder
-- **Vercel**: Connect your repository and set the output directory to `dist`
-- **GitHub Pages**: Push the `dist` folder to the `gh-pages` branch
-
-## Security Considerations
-
-The application includes several security measures:
-
-- Content validation to prevent abuse
-- Rate limiting to prevent spam
-- Blocked patterns for potentially malicious content
-- Terms acceptance to ensure responsible use
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Whether it's fixing bugs, adding new features, or improving documentation, we encourage you to submit a Pull Request.
 
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+If you have any issues, feedback, or suggestions, feel free to open an issue. Your input is greatly appreciated and will help improve the project!
 
 ## License
 
