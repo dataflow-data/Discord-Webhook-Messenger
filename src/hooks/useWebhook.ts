@@ -1,5 +1,4 @@
-
-import { WebhookMessageData, sendWebhookMessage, validateContent, validateUsername, validateAvatarUrl, getSecurityLogs } from "@/services/webhookService";
+import { WebhookMessageData, sendWebhookMessage, validateContent, validateUsername, validateAvatarUrl, getSecurityLogs, validateImageUrl } from "@/services/webhookService";
 import { toast } from "sonner";
 import { useWebhookState } from "./useWebhookState";
 import { useSecurityBlocking } from "./useSecurityBlocking";
@@ -73,6 +72,24 @@ export const useWebhook = () => {
         return false;
       }
     }
+
+    // Validate content image if provided
+    if (state.contentImageUrl.trim() && !state.useEmbed) {
+      const imageValidation = validateImageUrl(state.contentImageUrl);
+      if (!imageValidation.valid) {
+        toast.error(imageValidation.reason || "Invalid image format or size");
+        return false;
+      }
+    }
+
+    // Validate embed image if provided
+    if (state.embedImageUrl.trim() && state.useEmbed) {
+      const imageValidation = validateImageUrl(state.embedImageUrl);
+      if (!imageValidation.valid) {
+        toast.error(imageValidation.reason || "Invalid embed image format or size");
+        return false;
+      }
+    }
     
     // Check username validation if provided
     if (state.username) {
@@ -108,42 +125,79 @@ export const useWebhook = () => {
     
     setSending(true);
     
-    const messageData: WebhookMessageData = {
-      content: state.content,
-    };
-    
-    if (state.username.trim()) {
-      messageData.username = state.username;
-    }
-    
-    if (state.avatarUrl.trim()) {
-      messageData.avatar_url = state.avatarUrl;
-    }
-    
-    // Add image to text message if provided
-    if (state.contentImageUrl.trim() && !state.useEmbed) {
-      messageData.content = state.content.trim() 
-        ? `${state.content}\n${state.contentImageUrl}` 
-        : state.contentImageUrl;
-    }
-    
-    // Add embeds if needed
-    if (state.useEmbed) {
-      // Parse color from hex to decimal
-      let colorDecimal;
-      if (state.embedColor && state.embedColor.startsWith("#")) {
-        colorDecimal = parseInt(state.embedColor.slice(1), 16);
+    try {
+      // Prepare the message data
+      const messageData: WebhookMessageData = {
+        content: state.content,
+      };
+      
+      // Add username if provided
+      if (state.username.trim()) {
+        messageData.username = state.username;
       }
       
-      messageData.embeds = [{
-        title: state.embedTitle || undefined,
-        description: state.embedDescription || undefined,
-        color: colorDecimal,
-        image: state.embedImageUrl ? { url: state.embedImageUrl } : undefined
-      }];
-    }
-    
-    try {
+      // Add avatar URL if provided
+      if (state.avatarUrl.trim()) {
+        messageData.avatar_url = state.avatarUrl;
+      }
+      
+      // Handle text message with image
+      if (!state.useEmbed) {
+        // If we have an image URL (for non-embed messages)
+        if (state.contentImageUrl.trim()) {
+          // If it's a data URL, we need to tell the user we can't send it directly
+          if (state.contentImageUrl.startsWith('data:image/')) {
+            toast.error("Discord webhooks don't support direct image uploads. Please host your image and provide the URL.");
+            setSending(false);
+            return;
+          }
+          
+          // For regular URLs, append to message content
+          messageData.content = state.content.trim() 
+            ? `${state.content}\n${state.contentImageUrl}` 
+            : state.contentImageUrl;
+        }
+      } else {
+        // Handle embed with proper formatting
+        // Parse color from hex to decimal
+        let colorDecimal;
+        if (state.embedColor && state.embedColor.startsWith("#")) {
+          colorDecimal = parseInt(state.embedColor.slice(1), 16);
+        }
+        
+        // Create properly formatted embed
+        const embed: any = {};
+        
+        // Only add properties that have values to keep the embed clean
+        if (state.embedTitle.trim()) {
+          embed.title = state.embedTitle;
+        }
+        
+        if (state.embedDescription.trim()) {
+          embed.description = state.embedDescription;
+        }
+        
+        if (colorDecimal) {
+          embed.color = colorDecimal;
+        }
+        
+        // Add embed image if provided
+        if (state.embedImageUrl.trim()) {
+          // If it's a data URL, we need to tell the user we can't send it directly
+          if (state.embedImageUrl.startsWith('data:image/')) {
+            toast.error("Discord embeds don't support data URLs for images. Please host your image and provide the URL.");
+            setSending(false);
+            return;
+          }
+          
+          // For regular URLs, add to embed
+          embed.image = { url: state.embedImageUrl };
+        }
+        
+        // Add the embed to the message
+        messageData.embeds = [embed];
+      }
+      
       const result = await sendWebhookMessage(state.webhookUrl, messageData);
       
       if (result.success) {

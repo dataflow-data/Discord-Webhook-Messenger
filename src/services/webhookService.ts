@@ -1,4 +1,3 @@
-
 /**
  * Discord Webhook Service
  * Handles sending messages to Discord webhooks with security measures
@@ -189,7 +188,72 @@ export const validateEmbed = (embed: WebhookEmbed): { valid: boolean; reason?: s
 };
 
 /**
- * Checks content for potentially abusive patterns
+ * Validates an image URL or data URL
+ * @param imageUrl URL to validate
+ * @returns Object with validation result and reason if invalid
+ */
+export const validateImageUrl = (imageUrl?: string): { valid: boolean; reason?: string; isDataUrl?: boolean } => {
+  if (!imageUrl) {
+    return { valid: true };
+  }
+
+  // Check if it's a data URL
+  if (imageUrl.startsWith('data:image/')) {
+    if (!/^data:image\/(jpeg|png|gif|webp);base64,/.test(imageUrl)) {
+      return {
+        valid: false,
+        reason: "Invalid image data URL format. Only jpeg, png, gif, and webp are supported.",
+        isDataUrl: true
+      };
+    }
+
+    // Check size of data URL (Discord has 8MB limit)
+    const base64 = imageUrl.split(',')[1];
+    if (base64) {
+      const sizeInBytes = Math.ceil((base64.length * 3) / 4);
+      if (sizeInBytes > 8 * 1024 * 1024) {
+        return {
+          valid: false,
+          reason: "Image exceeds Discord's 8MB size limit.",
+          isDataUrl: true
+        };
+      }
+    }
+
+    return { valid: true, isDataUrl: true };
+  }
+
+  // For regular URLs
+  if (!imageUrl.startsWith("https://")) {
+    return {
+      valid: false,
+      reason: "Image URL must use HTTPS."
+    };
+  }
+  
+  // Check for blocked avatar patterns (reuse the same patterns for image URLs)
+  for (const pattern of BLOCKED_AVATAR_PATTERNS) {
+    if (pattern.test(imageUrl)) {
+      return { 
+        valid: false, 
+        reason: "Image URL contains prohibited patterns." 
+      };
+    }
+  }
+  
+  // Only allow common image extensions
+  if (!/\.(jpg|jpeg|png|gif|webp)$/i.test(imageUrl)) {
+    return {
+      valid: false,
+      reason: "Image URL must point to a common image format (jpg, png, gif, webp)."
+    };
+  }
+  
+  return { valid: true };
+};
+
+/**
+ * Validates content for potentially abusive patterns
  * @param content Message content to check
  * @returns Object with validation result and reason if invalid
  */
@@ -389,6 +453,33 @@ export const sendWebhookMessage = async (
             securityAction: "embed_blocked"
           };
         }
+
+        // Validate embed image if provided
+        if (embed.image?.url) {
+          const imageValidation = validateImageUrl(embed.image.url);
+          if (!imageValidation.valid) {
+            logSecurityEvent({
+              type: 'validation_failure',
+              reason: imageValidation.reason || 'Invalid embed image',
+              metadata: { isDataUrl: imageValidation.isDataUrl }
+            });
+            
+            return {
+              success: false,
+              message: imageValidation.reason || "Invalid embed image.",
+              securityAction: "image_blocked"
+            };
+          }
+
+          // Data URLs are not supported for Discord embed images
+          if (imageValidation.isDataUrl) {
+            return {
+              success: false,
+              message: "Data URLs are not supported for Discord embed images. Use a hosted image URL instead.",
+              securityAction: "image_blocked"
+            };
+          }
+        }
       }
     }
     
@@ -436,13 +527,16 @@ export const sendWebhookMessage = async (
       }
     }
     
+    // Clone message data to avoid modifying the original
+    const finalMessageData = {...messageData};
+
     // Send the request to the webhook
     const response = await fetch(webhookUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(messageData),
+      body: JSON.stringify(finalMessageData),
     });
     
     // Check for rate limiting
