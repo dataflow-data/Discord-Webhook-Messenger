@@ -8,44 +8,44 @@
 
 @layer base {
   :root {
-    --background: 222 14% 10%;
+    --background: 222 47% 11%;
     --foreground: 210 40% 98%;
 
-    --card: 222 16% 13%;
+    --card: 219 45% 13%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222 16% 13%;
+    --popover: 219 45% 13%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 235 86% 65%;
+    --primary: 250 95% 76%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 217 11% 18%;
+    --secondary: 217 33% 17%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 217 11% 15%;
+    --muted: 217 33% 15%;
     --muted-foreground: 215 20% 65%;
 
-    --accent: 235 86% 65%;
+    --accent: 250 95% 76%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 216 14% 20%;
-    --input: 216 14% 20%;
-    --ring: 235 86% 65%;
+    --border: 216 34% 17%;
+    --input: 216 34% 17%;
+    --ring: 250 95% 76%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 222 17% 15%;
+    --sidebar-background: 222 47% 11%;
     --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 235 86% 65%;
+    --sidebar-primary: 250 95% 76%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 10% 22%;
+    --sidebar-accent: 220 33% 17%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 216 14% 20%;
-    --sidebar-ring: 235 86% 65%;
+    --sidebar-border: 216 34% 17%;
+    --sidebar-ring: 250 95% 76%;
   }
 }
 
@@ -60,7 +60,7 @@
   }
 
   ::selection {
-    @apply bg-accent text-accent-foreground;
+    @apply bg-primary/20 text-white;
   }
 
   input, textarea, button {
@@ -70,7 +70,7 @@
 
 @layer components {
   .glass-card {
-    @apply bg-card/90 backdrop-blur-sm border border-border/50 shadow-xl;
+    @apply bg-card/90 backdrop-blur-sm border border-border/30 shadow-xl;
   }
   
   .hover-glow {
@@ -83,6 +83,22 @@
   
   .input-focus {
     @apply focus:ring-2 focus:ring-primary/30 focus:border-primary/60 transition-all duration-200;
+  }
+
+  .btn-primary {
+    @apply bg-primary hover:bg-primary/90 text-white rounded-lg flex items-center justify-center px-4 py-2 font-medium transition-all;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary hover:bg-secondary/80 text-white rounded-lg flex items-center justify-center px-4 py-2 font-medium transition-all;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent;
+  }
+
+  .card-gradient {
+    @apply bg-gradient-to-b from-card to-card/80;
   }
 }
 
@@ -107,24 +123,6 @@
   overflow-x: hidden;
 }
 
-.discord-header {
-  background-color: hsl(var(--card));
-  border-bottom: 1px solid hsl(var(--border));
-  box-shadow: 0 1px 0 rgba(4,4,5,0.2), 0 1.5px 0 rgba(6,6,7,0.05), 0 2px 0 rgba(4,4,5,0.05);
-}
-
-.discord-sidebar-item {
-  @apply flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-sm;
-}
-
-.discord-sidebar-item:hover {
-  @apply bg-secondary cursor-pointer;
-}
-
-.discord-sidebar-item.active {
-  @apply bg-primary/10 text-primary;
-}
-
 .scrollbar-none {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -139,15 +137,13 @@
   overflow-y: auto;
   min-height: 120px;
   transition: all 0.2s ease;
-  background-color: hsl(222, 13%, 16%);
-  border-color: hsl(216, 14%, 20%);
-  @apply rounded-md input-focus;
+  @apply bg-secondary/50 border-border/50 rounded-lg input-focus;
 }
 
 .message-field:focus {
   outline: none;
   box-shadow: 0 0 0 2px rgba(114, 137, 218, 0.3);
-  border-color: hsl(235, 86%, 65%);
+  @apply border-primary/60;
 }
 
 .webhook-container {
@@ -156,54 +152,67 @@
   margin: 0 auto;
 }
 
-.discord-card {
-  @apply glass-card rounded-lg overflow-hidden hover:border-primary/20;
+.app-card {
+  @apply glass-card rounded-xl overflow-hidden hover:border-primary/20 shadow-sm shadow-black/30;
 }
 
-.discord-badge {
-  @apply inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+.sidebar-item {
+  @apply flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-sm;
 }
 
-.discord-input {
-  @apply bg-secondary/60 border-input text-white input-focus;
+.sidebar-item:hover {
+  @apply bg-secondary cursor-pointer;
 }
 
-.text-gradient {
-  @apply bg-gradient-to-r from-primary via-primary/90 to-primary/80 bg-clip-text text-transparent;
+.sidebar-item.active {
+  @apply bg-primary/10 text-primary;
 }
 
-.btn-glow:hover {
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.form-input {
+  @apply bg-secondary/60 border-border/60 text-white input-focus rounded-lg;
+}
+
+.glow-effect {
   box-shadow: 0 0 15px -3px hsl(var(--primary));
 }
 
-.pulse-dot {
-  position: relative;
+.glow-container {
+  @apply relative overflow-hidden;
 }
 
-.pulse-dot::after {
+.glow-container::before {
   content: '';
   position: absolute;
-  top: 50%;
-  right: -12px;
-  transform: translateY(-50%);
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: hsl(var(--primary));
-  animation: pulse 1.5s infinite;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsl(var(--primary)), transparent);
+  animation: glow 2s linear infinite;
 }
 
-@keyframes pulse {
+@keyframes glow {
   0% {
-    transform: translateY(-50%) scale(0.8);
-    opacity: 0.8;
-  }
-  50% {
-    transform: translateY(-50%) scale(1.2);
-    opacity: 1;
+    transform: translateX(-100%);
   }
   100% {
-    transform: translateY(-50%) scale(0.8);
-    opacity: 0.8;
+    transform: translateX(100%);
   }
+}
+
+.card-highlight {
+  @apply border border-primary/30 shadow-md shadow-primary/5;
 }

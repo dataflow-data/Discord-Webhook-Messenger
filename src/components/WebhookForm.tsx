@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Send, User, Image, Link2, ChevronDown, ChevronUp, MessageSquare, Webhook, Info, AlertCircle, CheckCircle2, Copy, ExternalLink, MessageCircle, PanelLeft, Code, HelpCircle } from "lucide-react";
+import { Send, User, Image, Link2, ChevronDown, ChevronUp, MessageSquare, Webhook, Info, AlertCircle, CheckCircle2, Copy, ExternalLink, MessageCircle, PanelLeft, Code, HelpCircle, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,27 +40,27 @@ const WebhookForm: React.FC = () => {
         {/* Left Sidebar */}
         <div className="lg:col-span-1">
           <div className="space-y-2 sticky top-[5.5rem]">
-            <div className="discord-sidebar-item active">
+            <div className="sidebar-item active">
               <Webhook className="h-4 w-4" />
               <span>Webhook Setup</span>
             </div>
-            <div className="discord-sidebar-item text-white/70">
+            <div className="sidebar-item text-white/70">
               <MessageSquare className="h-4 w-4" />
               <span>Message Formatting</span>
             </div>
-            <div className="discord-sidebar-item text-white/70">
+            <div className="sidebar-item text-white/70">
               <User className="h-4 w-4" />
               <span>Authentication</span>
             </div>
-            <div className="discord-sidebar-item text-white/70">
+            <div className="sidebar-item text-white/70">
               <Link2 className="h-4 w-4" />
               <span>API References</span>
             </div>
-            <div className="discord-sidebar-item text-white/70">
+            <div className="sidebar-item text-white/70">
               <Code className="h-4 w-4" />
               <span>Examples</span>
             </div>
-            <div className="discord-sidebar-item text-white/70">
+            <div className="sidebar-item text-white/70">
               <HelpCircle className="h-4 w-4" />
               <span>Support</span>
             </div>
@@ -69,15 +69,15 @@ const WebhookForm: React.FC = () => {
         
         {/* Main Form Section */}
         <div className="lg:col-span-4">
-          <Card className="discord-card shadow-lg overflow-hidden animate-in border border-border/50 transform transition-all">
+          <Card className="app-card shadow-lg overflow-hidden animate-in card-gradient border-border/30">
             <div className="flex flex-col">
               {/* Card Header */}
-              <div className="bg-card/80 border-b border-border/50 p-4 flex items-center justify-between">
+              <div className="bg-gradient-to-r from-card/80 to-card border-b border-border/30 p-5 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="bg-primary/10 p-1.5 rounded">
-                    <Webhook className="h-4 w-4 text-primary" />
+                  <div className="bg-primary/10 p-2 rounded-lg">
+                    <Webhook className="h-5 w-5 text-primary" />
                   </div>
-                  <h2 className="text-base font-semibold text-white">Webhook Configuration</h2>
+                  <h2 className="text-lg font-semibold text-white">Webhook Configuration</h2>
                 </div>
                 
                 <div className="flex items-center gap-2">
@@ -93,7 +93,7 @@ const WebhookForm: React.FC = () => {
               </div>
               
               {/* Tabs Navigation */}
-              <div className="p-1 bg-card/90 border-b border-border/50">
+              <div className="p-1 bg-card/90 border-b border-border/30">
                 <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
                   <TabsList className="w-full grid grid-cols-2 h-9 bg-muted/70">
                     <TabsTrigger 
@@ -122,7 +122,7 @@ const WebhookForm: React.FC = () => {
                             <div className="relative">
                               <Label 
                                 htmlFor="webhookUrl" 
-                                className="text-xs font-medium uppercase tracking-wider mb-1.5 text-white/70 flex items-center gap-1"
+                                className="text-xs font-medium uppercase tracking-wider mb-1.5 text-white/80 flex items-center gap-1"
                               >
                                 WEBHOOK URL
                                 <div className="w-1.5 h-1.5 rounded-full bg-destructive/70 mt-0.5"></div>
@@ -131,11 +131,11 @@ const WebhookForm: React.FC = () => {
                                 <Input
                                   id="webhookUrl"
                                   type="url"
-                                  placeholder="https://discord.com/api/webhooks/..."
+                                  placeholder="https://example.com/webhooks/..."
                                   value={state.webhookUrl}
                                   onChange={(e) => handleUrlChange(e.target.value)}
                                   className={cn(
-                                    "discord-input pr-10 bg-[#1e1f22] border-[#2b2d31]",
+                                    "form-input pr-10",
                                     state.webhookUrl && !state.isValidUrl && "border-destructive focus:ring-destructive/50"
                                   )}
                                   required
@@ -153,12 +153,12 @@ const WebhookForm: React.FC = () => {
                               {state.webhookUrl && !state.isValidUrl && (
                                 <p className="text-destructive text-xs mt-1 animate-in flex items-center gap-1">
                                   <AlertCircle className="h-3 w-3" />
-                                  Please enter a valid Discord webhook URL
+                                  Please enter a valid webhook URL
                                 </p>
                               )}
                               <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1">
                                 <Info className="h-3 w-3 text-primary/70" />
-                                <span>Find this in your Discord server settings</span>
+                                <span>Find this in your platform settings</span>
                               </p>
                             </div>
                             
@@ -170,15 +170,15 @@ const WebhookForm: React.FC = () => {
                                 className="text-xs flex items-center gap-1.5 text-primary hover:text-primary/80 transition-colors mb-2 focus:outline-none"
                               >
                                 {showOptional ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-                                {showOptional ? "Hide" : "Show"} webhook identity
+                                {showOptional ? "Hide" : "Show"} sender identity
                               </button>
                               
                               {showOptional && (
-                                <div className="space-y-4 animate-in pt-2 bg-muted/50 p-4 rounded-lg border border-border/50">
+                                <div className="space-y-4 animate-in pt-2 bg-muted/50 p-4 rounded-lg border border-border/30">
                                   <div>
                                     <Label 
                                       htmlFor="username" 
-                                      className="text-xs font-medium uppercase tracking-wider mb-1.5 text-white/70"
+                                      className="text-xs font-medium uppercase tracking-wider mb-1.5 text-white/80"
                                     >
                                       USERNAME
                                     </Label>
@@ -188,17 +188,17 @@ const WebhookForm: React.FC = () => {
                                       placeholder="Custom Bot Name"
                                       value={state.username}
                                       onChange={(e) => updateField("username", e.target.value)}
-                                      className="discord-input bg-[#1e1f22] border-[#2b2d31]"
+                                      className="form-input"
                                     />
                                     <p className="text-xs text-muted-foreground mt-1">
-                                      Override the default webhook username
+                                      Override the default username
                                     </p>
                                   </div>
                                   
                                   <div>
                                     <Label 
                                       htmlFor="avatarUrl" 
-                                      className="text-xs font-medium uppercase tracking-wider mb-1.5 text-white/70"
+                                      className="text-xs font-medium uppercase tracking-wider mb-1.5 text-white/80"
                                     >
                                       AVATAR URL
                                     </Label>
@@ -208,10 +208,10 @@ const WebhookForm: React.FC = () => {
                                       placeholder="https://example.com/avatar.png"
                                       value={state.avatarUrl}
                                       onChange={(e) => updateField("avatarUrl", e.target.value)}
-                                      className="discord-input bg-[#1e1f22] border-[#2b2d31]"
+                                      className="form-input"
                                     />
                                     <p className="text-xs text-muted-foreground mt-1">
-                                      Override the default webhook avatar image
+                                      Override the default avatar image
                                     </p>
                                   </div>
                                 </div>
@@ -222,7 +222,7 @@ const WebhookForm: React.FC = () => {
                             <div className="pt-2">
                               <Label 
                                 htmlFor="content" 
-                                className="text-xs font-medium uppercase tracking-wider mb-1.5 text-white/70 flex items-center gap-1"
+                                className="text-xs font-medium uppercase tracking-wider mb-1.5 text-white/80 flex items-center gap-1"
                               >
                                 MESSAGE CONTENT
                                 <div className="w-1.5 h-1.5 rounded-full bg-destructive/70 mt-0.5"></div>
@@ -234,7 +234,7 @@ const WebhookForm: React.FC = () => {
                                   value={state.content}
                                   onChange={(e) => updateField("content", e.target.value)}
                                   onKeyDown={handleKeyDown}
-                                  className="message-field min-h-[120px] bg-[#1e1f22] border-[#2b2d31]"
+                                  className="message-field min-h-[120px]"
                                   required
                                 />
                                 
@@ -264,11 +264,11 @@ const WebhookForm: React.FC = () => {
                             </div>
                           </div>
                           
-                          <div className="pt-3 border-t border-border/50 flex justify-end">
+                          <div className="pt-3 border-t border-border/30 flex justify-end">
                             <Button
                               type="submit"
                               disabled={!state.isValidUrl || !state.content.trim() || state.isSending}
-                              className="discord-button-primary btn-glow bg-primary hover:bg-primary/90"
+                              className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white"
                             >
                               {state.isSending ? (
                                 <span className="flex items-center gap-1">
@@ -289,19 +289,19 @@ const WebhookForm: React.FC = () => {
                       </div>
                       
                       {/* Preview Panel */}
-                      <div className="w-full sm:w-[280px] border-t sm:border-t-0 sm:border-l border-border/50 bg-muted/30 p-5">
+                      <div className="w-full sm:w-[280px] border-t sm:border-t-0 sm:border-l border-border/30 bg-gradient-to-b from-muted/30 to-card/50 p-5">
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
                             <h3 className="text-sm font-medium text-white">Message Preview</h3>
                             <Badge 
                               variant="outline" 
-                              className="text-[10px] py-0 h-4 px-1.5 border-border/50 text-muted-foreground"
+                              className="text-[10px] py-0 h-4 px-1.5 border-border/40 text-muted-foreground"
                             >
                               LIVE
                             </Badge>
                           </div>
                           
-                          <div className="bg-[#313338] rounded-lg p-3 border border-border/20">
+                          <div className="bg-card rounded-lg p-3 border border-border/20 card-highlight">
                             <div className="flex items-start gap-2">
                               <Avatar className="h-8 w-8 rounded-full mt-0.5 border border-border/20">
                                 {state.avatarUrl ? (
@@ -329,13 +329,13 @@ const WebhookForm: React.FC = () => {
                           </div>
                           
                           <div className="text-xs text-white/50 space-y-2 mt-3">
-                            <p>Messages sent directly to Discord. No content is stored.</p>
+                            <p>Messages sent directly to the endpoint. No content is stored.</p>
                             
-                            <div className="flex items-center justify-between pt-3 border-t border-border/50 mt-3">
+                            <div className="flex items-center justify-between pt-3 border-t border-border/30 mt-3">
                               <span className="text-white/80 text-[11px] font-medium uppercase">Documentation</span>
                               <a href="#" className="text-primary text-xs hover:underline flex items-center gap-1">
                                 View
-                                <ArrowRight className="h-3 w-3" />
+                                <ChevronRight className="h-3 w-3" />
                               </a>
                             </div>
                           </div>
@@ -347,7 +347,7 @@ const WebhookForm: React.FC = () => {
                   {/* Advanced Tab Content */}
                   <TabsContent value="advanced" className="pt-0 border-none outline-none">
                     <div className="p-6">
-                      <div className="bg-muted/50 p-4 rounded-lg border border-border/50 text-center">
+                      <div className="bg-gradient-to-r from-muted/50 to-muted/30 p-4 rounded-lg border border-border/30 text-center">
                         <p className="text-sm text-muted-foreground">
                           Advanced webhook configuration coming soon.
                         </p>

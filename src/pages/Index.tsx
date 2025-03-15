@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import WebhookForm from "@/components/WebhookForm";
 import Footer from "@/components/Footer";
-import { LogOut, Menu, ChevronsLeft, Bell, User, Search, LayoutGrid, ArrowRight } from "lucide-react";
+import { Bell, User, Search, LayoutGrid, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Index: React.FC = () => {
@@ -16,25 +16,22 @@ const Index: React.FC = () => {
 
   return (
     <div className="app-container min-h-screen flex flex-col bg-background">
-      {/* Discord Developer Portal-inspired header */}
-      <header className="discord-header py-3 px-4 md:px-6 sticky top-0 z-30">
+      {/* Modern header */}
+      <header className="app-header py-3 px-4 md:px-6 sticky top-0 z-30 backdrop-blur-md bg-background/80 border-b border-border/30">
         <div className="max-w-[1200px] mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4 md:gap-6">
-            {/* Discord Logo */}
+            {/* Logo */}
             <div className="flex items-center gap-3">
-              <img 
-                src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png"
-                alt="Discord Logo"
-                className="w-8 h-6 object-contain"
-              />
-              <span className="hidden md:block text-lg font-semibold tracking-tight text-white">
-                Developer Portal
+              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/60 rounded-lg flex items-center justify-center">
+                <Webhook className="h-5 w-5 text-white" />
+              </div>
+              <span className="text-lg font-semibold tracking-tight text-white">
+                Webhook Messenger
               </span>
             </div>
             
             {/* Desktop Nav Items */}
             <div className="hidden md:flex items-center gap-6">
-              <div className="h-5 w-[1px] bg-border/80"></div>
               <span className="text-sm font-medium text-primary cursor-pointer hover:underline">
                 Tools
               </span>
@@ -42,10 +39,10 @@ const Index: React.FC = () => {
                 Documentation
               </span>
               <span className="text-sm font-medium text-white/70 cursor-pointer hover:text-white transition-colors">
-                Applications
+                Templates
               </span>
               <span className="text-sm font-medium text-white/70 cursor-pointer hover:text-white transition-colors">
-                Team
+                Integrations
               </span>
             </div>
           </div>
@@ -60,28 +57,28 @@ const Index: React.FC = () => {
               </button>
             </div>
             
-            <button className="md:hidden text-white/70 hover:text-white transition-colors">
-              <Menu className="h-5 w-5" />
-            </button>
+            <Button variant="secondary" className="bg-secondary/60 border border-border/30 hover:bg-secondary/80">
+              <LayoutGrid className="h-4 w-4 mr-2" />
+              Dashboard
+            </Button>
             
-            <div className="hidden md:flex items-center gap-3">
-              <div className="h-[28px] w-[1px] bg-border/80"></div>
-              
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-white">
-                  <User className="h-4 w-4" />
-                </div>
-                <button className="flex items-center gap-2 px-3 py-1.5 rounded hover:bg-white/5 transition-colors text-sm font-medium text-white/80 hover:text-white">
-                  <LogOut className="h-4 w-4" />
-                  <span>Log Out</span>
-                </button>
-              </div>
+            <div className="hidden md:flex ml-2">
+              <Button variant="ghost" size="icon" className="rounded-full bg-white/5 hover:bg-white/10">
+                <User className="h-4 w-4 text-primary" />
+              </Button>
             </div>
           </div>
         </div>
       </header>
       
       <main className="flex-1 py-10 px-4 max-w-[1200px] mx-auto w-full">
+        <div className="flex flex-col gap-2 mb-6">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span>Integrations</span>
+            <ChevronRight className="h-3 w-3" />
+            <span className="text-primary">Webhook Tools</span>
+          </div>
+        </div>
         <WebhookForm />
       </main>
       
