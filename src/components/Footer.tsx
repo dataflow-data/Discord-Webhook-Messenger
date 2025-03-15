@@ -1,7 +1,7 @@
 
 import React from "react";
 import { cn } from "@/lib/utils";
-import { Heart, Webhook } from "lucide-react";
+import { GitHub, Twitter } from "lucide-react";
 
 interface FooterProps {
   className?: string;
@@ -12,29 +12,40 @@ const Footer: React.FC<FooterProps> = ({ className }) => {
   
   return (
     <footer className={cn(
-      "py-6 px-4 mt-8 text-center text-sm text-muted-foreground relative z-10 border-t border-border/30",
+      "py-6 px-4 mt-8 text-sm relative z-10 border-t border-border",
       className
     )}>
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col items-center justify-center space-y-2">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <Webhook className="h-5 w-5 text-primary/70" />
-            <span className="text-lg font-semibold text-white">webhook.dev</span>
+      <div className="max-w-[1600px] mx-auto">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <img 
+              src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png"
+              alt="Discord Logo"
+              className="w-5 h-4 object-contain"
+            />
+            <span className="text-white/90 text-sm">Discord Webhook Tool</span>
           </div>
           
-          <div className="flex items-center gap-1.5">
-            <span>Built with</span>
-            <Heart className="h-3 w-3 text-red-500 fill-red-500" />
-            <span>for the Discord community</span>
+          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
+            <div className="flex items-center gap-6">
+              <a href="#" className="text-white/70 hover:text-white transition-colors text-sm">Terms</a>
+              <a href="#" className="text-white/70 hover:text-white transition-colors text-sm">Privacy</a>
+              <a href="#" className="text-white/70 hover:text-white transition-colors text-sm">Support</a>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <a href="#" className="text-white/70 hover:text-white transition-colors">
+                <GitHub className="h-5 w-5" />
+              </a>
+              <a href="#" className="text-white/70 hover:text-white transition-colors">
+                <Twitter className="h-5 w-5" />
+              </a>
+            </div>
           </div>
           
-          <p className="text-xs opacity-75">
-            &copy; {currentYear} Discord Webhook Messenger. All rights reserved.
-          </p>
-          
-          <p className="text-xs opacity-60 mt-1">
-            Not affiliated with Discord Inc.
-          </p>
+          <div className="text-white/50 text-xs">
+            &copy; {currentYear} Discord Webhook Tool (unofficial)
+          </div>
         </div>
       </div>
     </footer>

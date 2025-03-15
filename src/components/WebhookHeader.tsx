@@ -9,21 +9,23 @@ interface WebhookHeaderProps {
 
 const WebhookHeader: React.FC<WebhookHeaderProps> = ({ className }) => {
   return (
-    <div className={cn("mb-8", className)}>
-      <div className="flex flex-col gap-2 mb-6">
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl animate-fade-in text-white">
-          Discord Webhook Configuration
-        </h1>
+    <div className={cn("mb-6", className)}>
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center gap-3">
+          <div className="bg-primary/10 p-2 rounded-lg">
+            <Webhook className="h-5 w-5 text-primary" />
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-white">
+            Webhooks
+          </h1>
+        </div>
         
-        <p className="text-muted-foreground text-balance animate-fade-in max-w-2xl">
-          Configure and send messages directly to your Discord server using webhooks.
-          Complete the form below to begin sending messages.
-        </p>
-      </div>
-      
-      <div className="flex items-center gap-2 text-sm text-accent/80 animate-fade-in mb-8">
-        <Webhook className="h-4 w-4" />
-        <span>Messages sent directly to your Discord server via webhooks</span>
+        <div className="border-b border-border pb-6 mt-2">
+          <p className="text-muted-foreground leading-relaxed max-w-2xl">
+            Use webhooks to send messages to text channels without needing a Discord application. 
+            Configure your webhook below to begin sending messages directly from this interface.
+          </p>
+        </div>
       </div>
     </div>
   );
