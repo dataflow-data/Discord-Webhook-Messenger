@@ -1,6 +1,25 @@
 
 import React from "react";
-import { Send, ChevronDown, ChevronUp, MessageSquare, Info, AlertCircle, CheckCircle2, Image, FileText, BookImage, Trash2 } from "lucide-react";
+import { 
+  Send, 
+  ChevronDown, 
+  ChevronUp, 
+  MessageSquare, 
+  Info, 
+  AlertCircle, 
+  CheckCircle2, 
+  Image, 
+  FileText, 
+  BookImage, 
+  Trash2, 
+  Link, 
+  User, 
+  AtSign, 
+  Palette, 
+  File, 
+  Terminal, 
+  BookText 
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +28,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { WebhookState } from "@/hooks/useWebhook";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
 
 interface WebhookFormFieldsProps {
   state: WebhookState;
@@ -35,43 +55,7 @@ const WebhookFormFields: React.FC<WebhookFormFieldsProps> = ({
   handleKeyDown,
   handleSubmit
 }) => {
-  // Handle image upload for text messages
-  const handleContentImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      if (file.size > 8 * 1024 * 1024) { // 8MB limit for Discord
-        alert("Image is too large. Maximum size is 8MB.");
-        return;
-      }
-      
-      // Use direct URL input instead of file upload (in a real app, you'd upload to a hosting service)
-      const reader = new FileReader();
-      reader.onload = () => {
-        updateField("contentImageUrl", reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-  
-  // Handle image upload for embeds
-  const handleEmbedImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      if (file.size > 8 * 1024 * 1024) { // 8MB limit for Discord
-        alert("Image is too large. Maximum size is 8MB.");
-        return;
-      }
-      
-      // Use direct URL input instead of file upload (in a real app, you'd upload to a hosting service)
-      const reader = new FileReader();
-      reader.onload = () => {
-        updateField("embedImageUrl", reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-  
-  // Function to clear image URL
+  // Function to clear content image URL
   const clearContentImage = () => {
     updateField("contentImageUrl", "");
   };
@@ -90,23 +74,29 @@ const WebhookFormFields: React.FC<WebhookFormFieldsProps> = ({
             htmlFor="webhookUrl" 
             className="text-xs font-medium uppercase tracking-wider mb-1.5 text-white/80 flex items-center gap-1"
           >
+            <Link className="h-3.5 w-3.5 text-primary/80" />
             WEBHOOK URL
             <div className="w-1.5 h-1.5 rounded-full bg-destructive/70 mt-0.5"></div>
           </Label>
           <div className="relative">
-            <Input
-              id="webhookUrl"
-              type="url"
-              placeholder="https://discord.com/api/webhooks/..."
-              value={state.webhookUrl}
-              onChange={(e) => handleUrlChange(e.target.value)}
-              className={cn(
-                "form-input pr-10",
-                state.webhookUrl && !state.isValidUrl && "border-destructive focus:ring-destructive/50"
-              )}
-              required
-              disabled={isBlockedTemporarily}
-            />
+            <div className="relative">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                <Terminal className="h-4 w-4" />
+              </div>
+              <Input
+                id="webhookUrl"
+                type="url"
+                placeholder="https://discord.com/api/webhooks/..."
+                value={state.webhookUrl}
+                onChange={(e) => handleUrlChange(e.target.value)}
+                className={cn(
+                  "form-input pl-10 pr-10",
+                  state.webhookUrl && !state.isValidUrl && "border-destructive focus:ring-destructive/50"
+                )}
+                required
+                disabled={isBlockedTemporarily}
+              />
+            </div>
             {state.webhookUrl && (
               <div className="absolute right-3 top-1/2 -translate-y-1/2">
                 {state.isValidUrl ? (
@@ -146,20 +136,26 @@ const WebhookFormFields: React.FC<WebhookFormFieldsProps> = ({
               <div>
                 <Label 
                   htmlFor="username" 
-                  className="text-xs font-medium uppercase tracking-wider mb-1.5 text-white/80"
+                  className="text-xs font-medium uppercase tracking-wider mb-1.5 text-white/80 flex items-center gap-1"
                 >
+                  <User className="h-3.5 w-3.5 text-primary/80" />
                   USERNAME
                 </Label>
-                <Input
-                  id="username"
-                  type="text"
-                  placeholder="Custom Bot Name"
-                  value={state.username}
-                  onChange={(e) => updateField("username", e.target.value)}
-                  className="form-input"
-                  disabled={isBlockedTemporarily}
-                  maxLength={80}
-                />
+                <div className="relative">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    <AtSign className="h-4 w-4" />
+                  </div>
+                  <Input
+                    id="username"
+                    type="text"
+                    placeholder="Custom Bot Name"
+                    value={state.username}
+                    onChange={(e) => updateField("username", e.target.value)}
+                    className="form-input pl-10"
+                    disabled={isBlockedTemporarily}
+                    maxLength={80}
+                  />
+                </div>
                 <p className="text-xs text-muted-foreground mt-1">
                   Override the default username (blocked terms: discord, admin, mod, system, etc.)
                 </p>
@@ -168,19 +164,25 @@ const WebhookFormFields: React.FC<WebhookFormFieldsProps> = ({
               <div>
                 <Label 
                   htmlFor="avatarUrl" 
-                  className="text-xs font-medium uppercase tracking-wider mb-1.5 text-white/80"
+                  className="text-xs font-medium uppercase tracking-wider mb-1.5 text-white/80 flex items-center gap-1"
                 >
+                  <Image className="h-3.5 w-3.5 text-primary/80" />
                   AVATAR URL
                 </Label>
-                <Input
-                  id="avatarUrl"
-                  type="url"
-                  placeholder="https://example.com/avatar.png"
-                  value={state.avatarUrl}
-                  onChange={(e) => updateField("avatarUrl", e.target.value)}
-                  className="form-input"
-                  disabled={isBlockedTemporarily}
-                />
+                <div className="relative">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    <Link className="h-4 w-4" />
+                  </div>
+                  <Input
+                    id="avatarUrl"
+                    type="url"
+                    placeholder="https://example.com/avatar.png"
+                    value={state.avatarUrl}
+                    onChange={(e) => updateField("avatarUrl", e.target.value)}
+                    className="form-input pl-10"
+                    disabled={isBlockedTemporarily}
+                  />
+                </div>
                 <p className="text-xs text-muted-foreground mt-1">
                   Override the default avatar image (only https:// URLs with .jpg, .png, .gif, or .webp)
                 </p>
@@ -220,8 +222,9 @@ const WebhookFormFields: React.FC<WebhookFormFieldsProps> = ({
                   htmlFor="content" 
                   className="text-xs font-medium uppercase tracking-wider mb-1.5 text-white/80 flex items-center gap-1"
                 >
+                  <MessageSquare className="h-3.5 w-3.5 text-primary/80" />
                   MESSAGE CONTENT
-                  {(!state.contentImageUrl) && <div className="w-1.5 h-1.5 rounded-full bg-destructive/70 mt-0.5"></div>}
+                  <div className="w-1.5 h-1.5 rounded-full bg-destructive/70 mt-0.5"></div>
                 </Label>
                 <div className="relative">
                   <Textarea
@@ -231,7 +234,7 @@ const WebhookFormFields: React.FC<WebhookFormFieldsProps> = ({
                     onChange={(e) => updateField("content", e.target.value)}
                     onKeyDown={handleKeyDown}
                     className="message-field min-h-[120px]"
-                    required={!state.contentImageUrl && !state.useEmbed}
+                    required={!state.useEmbed}
                     disabled={isBlockedTemporarily}
                     maxLength={2000}
                   />
@@ -262,66 +265,58 @@ const WebhookFormFields: React.FC<WebhookFormFieldsProps> = ({
                 </div>
               </div>
               
-              {/* Image Upload for Text Messages */}
+              {/* Image URL for Text Messages - Now Optional */}
               <div>
                 <Label 
-                  htmlFor="contentImage" 
+                  htmlFor="contentImageUrl" 
                   className="text-xs font-medium uppercase tracking-wider mb-1.5 text-white/80 flex items-center gap-1"
                 >
-                  ATTACH IMAGE
-                  {(!state.content) && <div className="w-1.5 h-1.5 rounded-full bg-destructive/70 mt-0.5"></div>}
+                  <BookImage className="h-3.5 w-3.5 text-primary/80" />
+                  IMAGE URL (OPTIONAL)
                 </Label>
                 
-                {!state.contentImageUrl ? (
-                  <div className="border-2 border-dashed border-border/50 rounded-md p-6 text-center hover:border-primary/50 transition-colors">
-                    <div className="flex flex-col items-center">
-                      <Image className="h-8 w-8 text-muted-foreground mb-2" />
-                      <p className="text-sm text-muted-foreground mb-2">Drag & drop an image here or click to browse</p>
-                      <input
-                        id="contentImage"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleContentImageUpload}
-                        className="hidden"
-                        disabled={isBlockedTemporarily}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => document.getElementById('contentImage')?.click()}
-                        disabled={isBlockedTemporarily}
-                      >
-                        Choose Image
-                      </Button>
-                      <p className="text-xs text-muted-foreground mt-2">Maximum file size: 8MB</p>
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                      <Link className="h-4 w-4" />
                     </div>
+                    <Input
+                      id="contentImageUrl"
+                      type="url"
+                      placeholder="https://example.com/image.png"
+                      value={state.contentImageUrl}
+                      onChange={(e) => updateField("contentImageUrl", e.target.value)}
+                      className="pl-10 flex-1"
+                      disabled={isBlockedTemporarily}
+                    />
                   </div>
-                ) : (
-                  <div className="relative border rounded-md overflow-hidden">
-                    <div className="relative pt-[56.25%]">
-                      <img 
-                        src={state.contentImageUrl} 
-                        alt="Message attachment" 
-                        className="absolute inset-0 w-full h-full object-contain bg-background/50" 
-                      />
-                    </div>
+                  {state.contentImageUrl && (
                     <Button
                       type="button"
                       variant="destructive"
-                      size="sm"
-                      className="absolute top-2 right-2"
+                      size="icon"
                       onClick={clearContentImage}
                       disabled={isBlockedTemporarily}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
-                  </div>
-                )}
+                  )}
+                </div>
                 
-                <p className="text-xs text-muted-foreground mt-1.5">
-                  Either message content or an image is required
+                <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1 text-yellow-200/80">
+                  <AlertCircle className="h-3 w-3" />
+                  <span>Discord only accepts image URLs. You must host your images elsewhere first.</span>
                 </p>
+                
+                <div className="mt-2 p-3 bg-primary/10 border border-primary/20 rounded-md">
+                  <p className="text-xs text-white/80 flex items-start gap-2">
+                    <Info className="h-4 w-4 text-primary/80 mt-0.5 flex-shrink-0" />
+                    <span>
+                      To use images, upload them to an image hosting service like Imgur, Discord CDN, or similar, 
+                      then paste the direct image URL here. Discord does not accept direct file uploads through webhooks.
+                    </span>
+                  </p>
+                </div>
               </div>
             </TabsContent>
             
@@ -330,27 +325,34 @@ const WebhookFormFields: React.FC<WebhookFormFieldsProps> = ({
               <div>
                 <Label 
                   htmlFor="embedTitle" 
-                  className="text-xs font-medium uppercase tracking-wider mb-1.5 text-white/80"
+                  className="text-xs font-medium uppercase tracking-wider mb-1.5 text-white/80 flex items-center gap-1"
                 >
+                  <BookText className="h-3.5 w-3.5 text-primary/80" />
                   EMBED TITLE
                 </Label>
-                <Input
-                  id="embedTitle"
-                  type="text"
-                  placeholder="Your embed title"
-                  value={state.embedTitle}
-                  onChange={(e) => updateField("embedTitle", e.target.value)}
-                  className="form-input"
-                  disabled={isBlockedTemporarily}
-                  maxLength={256}
-                />
+                <div className="relative">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    <File className="h-4 w-4" />
+                  </div>
+                  <Input
+                    id="embedTitle"
+                    type="text"
+                    placeholder="Your embed title"
+                    value={state.embedTitle}
+                    onChange={(e) => updateField("embedTitle", e.target.value)}
+                    className="form-input pl-10"
+                    disabled={isBlockedTemporarily}
+                    maxLength={256}
+                  />
+                </div>
               </div>
               
               <div>
                 <Label 
                   htmlFor="embedDescription" 
-                  className="text-xs font-medium uppercase tracking-wider mb-1.5 text-white/80"
+                  className="text-xs font-medium uppercase tracking-wider mb-1.5 text-white/80 flex items-center gap-1"
                 >
+                  <FileText className="h-3.5 w-3.5 text-primary/80" />
                   EMBED DESCRIPTION
                 </Label>
                 <Textarea
@@ -371,68 +373,66 @@ const WebhookFormFields: React.FC<WebhookFormFieldsProps> = ({
                 </div>
               </div>
               
-              {/* Embed Image Upload */}
+              {/* Embed Image URL Input */}
               <div>
                 <Label 
-                  htmlFor="embedImage" 
+                  htmlFor="embedImageUrl" 
                   className="text-xs font-medium uppercase tracking-wider mb-1.5 text-white/80 flex items-center gap-1"
                 >
-                  EMBED IMAGE
+                  <Image className="h-3.5 w-3.5 text-primary/80" />
+                  EMBED IMAGE URL
                 </Label>
                 
-                {!state.embedImageUrl ? (
-                  <div className="border-2 border-dashed border-border/50 rounded-md p-6 text-center hover:border-primary/50 transition-colors">
-                    <div className="flex flex-col items-center">
-                      <BookImage className="h-8 w-8 text-muted-foreground mb-2" />
-                      <p className="text-sm text-muted-foreground mb-2">Add an image to your embed</p>
-                      <input
-                        id="embedImage"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleEmbedImageUpload}
-                        className="hidden"
-                        disabled={isBlockedTemporarily}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => document.getElementById('embedImage')?.click()}
-                        disabled={isBlockedTemporarily}
-                      >
-                        Choose Image
-                      </Button>
-                      <p className="text-xs text-muted-foreground mt-2">Maximum file size: 8MB</p>
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                      <Link className="h-4 w-4" />
                     </div>
+                    <Input
+                      id="embedImageUrl"
+                      type="url"
+                      placeholder="https://example.com/image.png"
+                      value={state.embedImageUrl}
+                      onChange={(e) => updateField("embedImageUrl", e.target.value)}
+                      className="pl-10 flex-1"
+                      disabled={isBlockedTemporarily}
+                    />
                   </div>
-                ) : (
-                  <div className="relative border rounded-md overflow-hidden">
-                    <div className="relative pt-[56.25%]">
-                      <img 
-                        src={state.embedImageUrl} 
-                        alt="Embed image" 
-                        className="absolute inset-0 w-full h-full object-contain bg-background/50" 
-                      />
-                    </div>
+                  {state.embedImageUrl && (
                     <Button
                       type="button"
                       variant="destructive"
-                      size="sm"
-                      className="absolute top-2 right-2"
+                      size="icon"
                       onClick={clearEmbedImage}
                       disabled={isBlockedTemporarily}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
-                  </div>
-                )}
+                  )}
+                </div>
+                
+                <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1 text-yellow-200/80">
+                  <AlertCircle className="h-3 w-3" />
+                  <span>Discord only accepts image URLs. You must host your images elsewhere first.</span>
+                </p>
+                
+                <div className="mt-2 p-3 bg-primary/10 border border-primary/20 rounded-md">
+                  <p className="text-xs text-white/80 flex items-start gap-2">
+                    <Info className="h-4 w-4 text-primary/80 mt-0.5 flex-shrink-0" />
+                    <span>
+                      To use images, upload them to an image hosting service like Imgur, Discord CDN, or similar, 
+                      then paste the direct image URL here. Discord does not accept direct file uploads through webhooks.
+                    </span>
+                  </p>
+                </div>
               </div>
               
               <div>
                 <Label 
                   htmlFor="embedColor" 
-                  className="text-xs font-medium uppercase tracking-wider mb-1.5 text-white/80"
+                  className="text-xs font-medium uppercase tracking-wider mb-1.5 text-white/80 flex items-center gap-1"
                 >
+                  <Palette className="h-3.5 w-3.5 text-primary/80" />
                   EMBED COLOR
                 </Label>
                 <div className="flex items-center gap-3">
@@ -462,8 +462,9 @@ const WebhookFormFields: React.FC<WebhookFormFieldsProps> = ({
               <div>
                 <Label 
                   htmlFor="content" 
-                  className="text-xs font-medium uppercase tracking-wider mb-1.5 text-white/80"
+                  className="text-xs font-medium uppercase tracking-wider mb-1.5 text-white/80 flex items-center gap-1"
                 >
+                  <MessageSquare className="h-3.5 w-3.5 text-primary/80" />
                   ADDITIONAL MESSAGE (OPTIONAL)
                 </Label>
                 <Textarea
@@ -516,7 +517,7 @@ const WebhookFormFields: React.FC<WebhookFormFieldsProps> = ({
           type="submit"
           disabled={
             !state.isValidUrl || 
-            ((!state.content.trim() && !state.contentImageUrl) && !state.useEmbed) || 
+            (!state.content.trim() && !state.useEmbed) || 
             (state.useEmbed && !state.embedTitle.trim() && !state.embedDescription.trim() && !state.embedImageUrl) || 
             !state.termsAccepted ||
             state.isSending || 

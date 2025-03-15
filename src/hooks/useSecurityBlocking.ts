@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { 
   calculateBlockDuration, 
@@ -23,33 +23,40 @@ export const useSecurityBlocking = () => {
 
   const [blockRemainingTime, setBlockRemainingTime] = useState<number>(0);
   
-  // Check if user is still blocked on mount and update remaining time
-  useEffect(() => {
+  // Function to check block status - made with useCallback to ensure reference stability
+  const checkBlockStatus = useCallback(() => {
     const blockUntil = localStorage.getItem("webhook-blocked-until");
     if (blockUntil) {
       const blockTime = parseInt(blockUntil, 10);
+      const remaining = Math.max(0, blockTime - Date.now());
+      
+      setBlockRemainingTime(remaining);
+      
       if (blockTime > Date.now()) {
         setIsBlockedTemporarily(true);
-        
-        // Update remaining time every second
-        const interval = setInterval(() => {
-          const remaining = Math.max(0, blockTime - Date.now());
-          setBlockRemainingTime(remaining);
-          
-          if (remaining === 0) {
-            setIsBlockedTemporarily(false);
-            localStorage.removeItem("webhook-blocked-until");
-            clearInterval(interval);
-          }
-        }, 1000);
-        
-        return () => clearInterval(interval);
       } else {
         // No longer blocked
+        setIsBlockedTemporarily(false);
         localStorage.removeItem("webhook-blocked-until");
+        setBlockRemainingTime(0);
       }
+    } else {
+      // Ensure state is consistent when no block exists
+      setIsBlockedTemporarily(false);
+      setBlockRemainingTime(0);
     }
   }, []);
+  
+  // Check if user is still blocked on mount and update remaining time
+  useEffect(() => {
+    // Check immediately on mount
+    checkBlockStatus();
+    
+    // Then check every second
+    const interval = setInterval(checkBlockStatus, 1000);
+    
+    return () => clearInterval(interval);
+  }, [checkBlockStatus]);
   
   // Save security violations to localStorage
   useEffect(() => {
@@ -57,10 +64,10 @@ export const useSecurityBlocking = () => {
   }, [securityViolations]);
   
   // Format remaining block time as mm:ss
-  const formattedBlockTime = () => formatTime(blockRemainingTime);
+  const formattedBlockTime = useCallback(() => formatTime(blockRemainingTime), [blockRemainingTime]);
   
   // Block user temporarily with progressive duration
-  const applyTemporaryBlock = (reason: string) => {
+  const applyTemporaryBlock = useCallback((reason: string) => {
     // Increment violation count
     const newViolationCount = securityViolations + 1;
     setSecurityViolations(newViolationCount);
@@ -77,27 +84,20 @@ export const useSecurityBlocking = () => {
     const blockMinutes = Math.ceil(blockDuration / 60000);
     
     toast.error(`${reason} You're temporarily blocked for ${blockMinutes} minutes.`);
-    
-    // Set timeout to automatically unblock
-    setTimeout(() => {
-      setIsBlockedTemporarily(false);
-      localStorage.removeItem("webhook-blocked-until");
-      setBlockRemainingTime(0);
-    }, blockDuration);
-  };
+  }, [securityViolations]);
   
   // Reset security violations (for testing)
-  const resetSecurityViolations = () => {
+  const resetSecurityViolations = useCallback(() => {
     setSecurityViolations(0);
-    localStorage.setItem("webhook-security-violations", "0");
-  };
+    localStorage.removeItem("webhook-security-violations");
+  }, []);
   
   // Clear security block (for testing)
-  const clearSecurityBlock = () => {
+  const clearSecurityBlock = useCallback(() => {
     setIsBlockedTemporarily(false);
     localStorage.removeItem("webhook-blocked-until");
     setBlockRemainingTime(0);
-  };
+  }, []);
   
   return {
     securityViolations,

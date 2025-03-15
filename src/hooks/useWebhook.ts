@@ -39,8 +39,14 @@ export const useWebhook = () => {
     resetUsageHistory 
   } = useRateLimiting(isBlockedTemporarily, applyTemporaryBlock);
   
-  // Check if validations pass
+  // Check if validations pass - relaxed validation
   const validateInputs = (): boolean => {
+    // Skip validation if already blocked
+    if (isBlockedTemporarily) {
+      toast.error("You're currently blocked from sending messages. Please wait for the block to expire.");
+      return false;
+    }
+    
     if (!state.isValidUrl) {
       toast.error("Please enter a valid webhook URL");
       return false;
@@ -52,9 +58,9 @@ export const useWebhook = () => {
       return false;
     }
     
-    // If not using embeds, content or image is required
-    if (!state.useEmbed && !state.content.trim() && !state.contentImageUrl.trim()) {
-      toast.error("Message content or image is required when not using embeds");
+    // If not using embeds, at least content is required (image URL is optional)
+    if (!state.useEmbed && !state.content.trim()) {
+      toast.error("Message content is required when not using embeds");
       return false;
     }
     
@@ -64,49 +70,52 @@ export const useWebhook = () => {
       return false;
     }
     
-    // Check additional content validation if content exists
+    // Relaxed content validation - only check length
     if (state.content.trim()) {
-      const contentValidation = validateContent(state.content);
-      if (!contentValidation.valid) {
-        toast.error(contentValidation.reason || "Invalid message content");
+      if (state.content.length > 2000) {
+        toast.error("Message content exceeds maximum length of 2000 characters");
         return false;
       }
     }
 
-    // Validate content image if provided
+    // Validate content image if provided - relaxed validation
     if (state.contentImageUrl.trim() && !state.useEmbed) {
-      const imageValidation = validateImageUrl(state.contentImageUrl);
-      if (!imageValidation.valid) {
-        toast.error(imageValidation.reason || "Invalid image format or size");
+      // Check if it's a data URL (direct upload)
+      if (state.contentImageUrl.startsWith('data:image/')) {
+        toast.error("Discord webhooks don't support direct image uploads. Please use an image URL from a hosting service instead.");
+        return false;
+      }
+      
+      if (!state.contentImageUrl.startsWith('https://')) {
+        toast.error("Image URL must use HTTPS.");
         return false;
       }
     }
 
-    // Validate embed image if provided
+    // Validate embed image if provided - relaxed validation
     if (state.embedImageUrl.trim() && state.useEmbed) {
-      const imageValidation = validateImageUrl(state.embedImageUrl);
-      if (!imageValidation.valid) {
-        toast.error(imageValidation.reason || "Invalid embed image format or size");
+      // Check if it's a data URL (direct upload)
+      if (state.embedImageUrl.startsWith('data:image/')) {
+        toast.error("Discord webhooks don't support direct image uploads. Please use an image URL from a hosting service instead.");
+        return false;
+      }
+      
+      if (!state.embedImageUrl.startsWith('https://')) {
+        toast.error("Image URL must use HTTPS.");
         return false;
       }
     }
     
-    // Check username validation if provided
-    if (state.username) {
-      const usernameValidation = validateUsername(state.username);
-      if (!usernameValidation.valid) {
-        toast.error(usernameValidation.reason || "Invalid username");
-        return false;
-      }
+    // Check username length only
+    if (state.username && state.username.length > 80) {
+      toast.error("Username exceeds maximum length of 80 characters");
+      return false;
     }
     
-    // Check avatar URL validation if provided
-    if (state.avatarUrl) {
-      const avatarValidation = validateAvatarUrl(state.avatarUrl);
-      if (!avatarValidation.valid) {
-        toast.error(avatarValidation.reason || "Invalid avatar URL");
-        return false;
-      }
+    // Check avatar URL protocol only
+    if (state.avatarUrl && !state.avatarUrl.startsWith('https://')) {
+      toast.error("Avatar URL must use HTTPS");
+      return false;
     }
     
     return true;
@@ -114,14 +123,25 @@ export const useWebhook = () => {
   
   // Send message function
   const sendMessage = async () => {
+    // First check if blocked before doing any validation
+    if (isBlockedTemporarily) {
+      toast.error(`You're currently blocked from sending messages. Please wait ${formattedBlockTime()} before trying again.`);
+      return;
+    }
+    
+    console.log("Validating inputs...");
     if (!validateInputs()) {
       return;
     }
     
+    console.log("Checking rate limit...");
     // Check rate limiting
     if (!checkRateLimit()) {
       return;
     }
+    
+    console.log("Preparing to send message...");
+    console.log("Current state:", state);
     
     setSending(true);
     
@@ -145,13 +165,6 @@ export const useWebhook = () => {
       if (!state.useEmbed) {
         // If we have an image URL (for non-embed messages)
         if (state.contentImageUrl.trim()) {
-          // If it's a data URL, we need to tell the user we can't send it directly
-          if (state.contentImageUrl.startsWith('data:image/')) {
-            toast.error("Discord webhooks don't support direct image uploads. Please host your image and provide the URL.");
-            setSending(false);
-            return;
-          }
-          
           // For regular URLs, append to message content
           messageData.content = state.content.trim() 
             ? `${state.content}\n${state.contentImageUrl}` 
@@ -183,14 +196,6 @@ export const useWebhook = () => {
         
         // Add embed image if provided
         if (state.embedImageUrl.trim()) {
-          // If it's a data URL, we need to tell the user we can't send it directly
-          if (state.embedImageUrl.startsWith('data:image/')) {
-            toast.error("Discord embeds don't support data URLs for images. Please host your image and provide the URL.");
-            setSending(false);
-            return;
-          }
-          
-          // For regular URLs, add to embed
           embed.image = { url: state.embedImageUrl };
         }
         
@@ -198,7 +203,9 @@ export const useWebhook = () => {
         messageData.embeds = [embed];
       }
       
+      console.log("Sending message data:", JSON.stringify(messageData));
       const result = await sendWebhookMessage(state.webhookUrl, messageData);
+      console.log("Send result:", result);
       
       if (result.success) {
         // Record this successful usage for rate limiting
@@ -215,8 +222,8 @@ export const useWebhook = () => {
         }
       }
     } catch (error) {
+      console.error("Error in sendMessage:", error);
       toast.error("Failed to send message. Please try again.");
-      console.error(error);
     } finally {
       setSending(false);
     }

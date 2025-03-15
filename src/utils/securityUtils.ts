@@ -1,10 +1,11 @@
+
 // Utility functions for security features
 
 // Security constants
-export const MAX_MESSAGES_PERIOD = 10;
+export const MAX_MESSAGES_PERIOD = 30; // Increased from 20 to 30
 export const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
-export const TEMP_BLOCK_DURATION_MS = 10 * 60 * 1000; // 10 minutes
-export const PROGRESSIVE_BLOCK_MULTIPLIER = 2; // Doubles block time for repeated violations
+export const TEMP_BLOCK_DURATION_MS = 30 * 1000; // Reduced to 30 seconds
+export const PROGRESSIVE_BLOCK_MULTIPLIER = 1.2; // Reduced from 1.5 to 1.2
 
 // Content limits
 export const CONTENT_MAX_LENGTH = 2000;
@@ -42,19 +43,19 @@ export const hexToDecimal = (hex: string): number | undefined => {
   return parseInt(hex.slice(1), 16);
 };
 
-// Validate image URLs and data URLs
+// Validate image URLs and data URLs - relaxed validation
 export const isValidImageUrl = (url: string): boolean => {
   if (!url) return false;
   
   // Check if it's a data URL
   if (url.startsWith('data:image/')) {
-    return /^data:image\/(jpeg|png|gif|webp);base64,/.test(url);
+    return /^data:image\/(jpeg|png|gif|webp|svg\+xml);base64,/.test(url);
   }
   
   // Otherwise check if it's a valid https URL with allowed extension
   if (!url.startsWith('https://')) return false;
   
-  return /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+  return /\.(jpg|jpeg|png|gif|webp|svg|bmp)$/i.test(url);
 };
 
 // Estimate size of a base64 data URL

@@ -5,7 +5,6 @@ import { Webhook } from "lucide-react";
 import { useWebhook } from "@/hooks/useWebhook";
 import SecurityAlerts from "./SecurityAlerts";
 import WebhookFormFields from "./WebhookFormFields";
-import SecurityInfo from "./SecurityInfo";
 
 const WebhookForm: React.FC = () => {
   const { 
@@ -50,7 +49,7 @@ const WebhookForm: React.FC = () => {
   const hideSecurityAlert = () => setShowSecurityAlert(false);
 
   return (
-    <div className="webhook-container animate-in">
+    <div className="webhook-container w-full max-w-3xl mx-auto animate-in">
       <SecurityAlerts 
         showSecurityAlert={showSecurityAlert}
         isBlockedTemporarily={isBlockedTemporarily}
@@ -60,7 +59,7 @@ const WebhookForm: React.FC = () => {
         hideSecurityAlert={hideSecurityAlert}
       />
       
-      <Card className="app-card shadow-lg overflow-hidden animate-in card-gradient border-border/30 max-w-3xl mx-auto">
+      <Card className="app-card shadow-lg overflow-hidden animate-in card-gradient border-border/30">
         <div className="flex flex-col">
           {/* Card Header */}
           <div className="bg-gradient-to-r from-primary/20 to-card/80 border-b border-border/30 p-5">
@@ -89,8 +88,6 @@ const WebhookForm: React.FC = () => {
           </div>
         </div>
       </Card>
-      
-      <SecurityInfo />
     </div>
   );
 };

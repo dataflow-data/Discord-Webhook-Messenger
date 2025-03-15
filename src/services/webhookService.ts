@@ -51,27 +51,22 @@ const CONTENT_MAX_LENGTH = 2000;
 const USERNAME_MAX_LENGTH = 80;
 const EMBED_TITLE_MAX_LENGTH = 256;
 const EMBED_DESCRIPTION_MAX_LENGTH = 4096;
+
+// Modified to be less restrictive - reduced forbidden patterns
 const BLOCKED_CONTENT_PATTERNS = [
-  /\b(hack|ddos|attack|exploit|bomb|terrorist|threat)\b/i,  // Block potentially malicious intent
   /@everyone/i,  // Block @everyone pings
   /@here/i,      // Block @here pings
-  /discord\.gift/i, // Block fake gift links
-  /nitro/i,      // Block potential scam words
-  /\b(http|https):\/\/(?!discord\.com|cdn\.discordapp\.com)/i, // Block non-Discord URLs
-  /<@&?\d+>/i,   // Block role and user mentions
   /(\u202E|\u200F|\u061C)/i, // Block right-to-left override characters used in attacks
 ];
 
-// Block patterns for usernames
+// Block patterns for usernames - kept for safety
 const BLOCKED_USERNAME_PATTERNS = [
-  /\b(discord|admin|mod|moderator|system|official|staff|support)/i,
-  /\b(webhook|bot|server|nitro)/i
+  /\b(discord|admin|mod|moderator|system|official|staff|support)\b/i,
 ];
 
-// Block suspicious avatar URLs
+// Block suspicious avatar URLs - simplified
 const BLOCKED_AVATAR_PATTERNS = [
   /\.(php|exe|bat|cmd|sh|pl|cgi|js)\b/i,
-  /\b(drive\.google|anonfiles|mega\.nz|mediafire)/i
 ];
 
 /**
@@ -86,31 +81,14 @@ export const isValidWebhookUrl = (url: string): boolean => {
 };
 
 /**
- * Detect suspicious content traits
+ * Detect suspicious content traits - relaxed conditions
  * @param content Message to analyze
  * @returns Object with flags for suspicious content
  */
 const detectSuspiciousContent = (content: string): { suspicious: boolean; reason?: string } => {
-  // Check for repeated characters (potential spam)
-  if (/(.)\1{10,}/i.test(content)) {
+  // Only check for extreme repeated characters (potential spam)
+  if (/(.)\1{20,}/i.test(content)) {
     return { suspicious: true, reason: "Repeated character spam detected" };
-  }
-  
-  // Check for excessive capitalization
-  const capitalRatio = content.split('').filter(c => c.match(/[A-Z]/)).length / content.length;
-  if (capitalRatio > 0.7 && content.length > 10) {
-    return { suspicious: true, reason: "Excessive capitalization detected" };
-  }
-  
-  // Check for excessive emoji
-  const emojiCount = (content.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u27FF]/g) || []).length;
-  if (emojiCount > content.length / 5 && content.length > 20) {
-    return { suspicious: true, reason: "Excessive emoji usage detected" };
-  }
-  
-  // Check for ASCII art (potential spam)
-  if (content.includes('░') || content.includes('█') || content.includes('▓') || content.includes('▒')) {
-    return { suspicious: true, reason: "ASCII art detected" };
   }
   
   return { suspicious: false };
@@ -242,10 +220,10 @@ export const validateImageUrl = (imageUrl?: string): { valid: boolean; reason?: 
   }
   
   // Only allow common image extensions
-  if (!/\.(jpg|jpeg|png|gif|webp)$/i.test(imageUrl)) {
+  if (!/\.(jpg|jpeg|png|gif|webp|svg|bmp)$/i.test(imageUrl)) {
     return {
       valid: false,
-      reason: "Image URL must point to a common image format (jpg, png, gif, webp)."
+      reason: "Image URL must point to a common image format (jpg, png, gif, webp, svg, bmp)."
     };
   }
   
@@ -269,7 +247,7 @@ export const validateContent = (content: string): { valid: boolean; reason?: str
     };
   }
   
-  // Check for blocked content patterns
+  // Check for blocked content patterns - but with reduced set
   for (const pattern of BLOCKED_CONTENT_PATTERNS) {
     if (pattern.test(content)) {
       return { 
@@ -279,7 +257,7 @@ export const validateContent = (content: string): { valid: boolean; reason?: str
     }
   }
   
-  // Check for suspicious content
+  // Check for suspicious content with relaxed conditions
   const suspiciousCheck = detectSuspiciousContent(content);
   if (suspiciousCheck.suspicious) {
     return {
@@ -348,11 +326,11 @@ export const validateAvatarUrl = (avatarUrl?: string): { valid: boolean; reason?
     }
   }
   
-  // Only allow common image extensions
-  if (!/\.(jpg|jpeg|png|gif|webp)$/i.test(avatarUrl)) {
+  // Allow more image extensions
+  if (!/\.(jpg|jpeg|png|gif|webp|svg|bmp)$/i.test(avatarUrl)) {
     return {
       valid: false,
-      reason: "Avatar URL must point to a common image format (jpg, png, gif, webp)."
+      reason: "Avatar URL must point to a common image format (jpg, png, gif, webp, svg, bmp)."
     };
   }
   
@@ -415,19 +393,22 @@ export const sendWebhookMessage = async (
       };
     }
     
-    // Validate content if provided
+    // Validate content if provided - with more debug information
     if (messageData.content) {
       const contentValidation = validateContent(messageData.content);
       if (!contentValidation.valid) {
+        const reason = contentValidation.reason || 'Invalid content';
+        console.log("Content validation failed:", reason, "Content:", messageData.content);
+        
         logSecurityEvent({
           type: 'validation_failure',
-          reason: contentValidation.reason || 'Invalid content',
-          metadata: { contentLength: messageData.content.length }
+          reason: reason,
+          metadata: { contentLength: messageData.content.length, content: messageData.content.substring(0, 50) }
         });
         
         return {
           success: false,
-          message: contentValidation.reason || "Invalid message content.",
+          message: reason,
           securityAction: "content_blocked"
         };
       }
@@ -530,6 +511,9 @@ export const sendWebhookMessage = async (
     // Clone message data to avoid modifying the original
     const finalMessageData = {...messageData};
 
+    // Add more debug logging
+    console.log("Sending webhook message:", JSON.stringify(finalMessageData));
+
     // Send the request to the webhook
     const response = await fetch(webhookUrl, {
       method: "POST",
@@ -538,6 +522,9 @@ export const sendWebhookMessage = async (
       },
       body: JSON.stringify(finalMessageData),
     });
+    
+    // Debug response
+    console.log("Webhook response status:", response.status, response.statusText);
     
     // Check for rate limiting
     if (response.status === 429) {
@@ -558,10 +545,13 @@ export const sendWebhookMessage = async (
     
     // Check for other errors
     if (!response.ok) {
+      const responseText = await response.text();
+      console.log("Error response body:", responseText);
+      
       logSecurityEvent({
         type: 'validation_failure',
         reason: `Error: ${response.status} - ${response.statusText}`,
-        metadata: { status: response.status }
+        metadata: { status: response.status, responseBody: responseText }
       });
       
       return {

@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Book, Code, FileText, MessageSquare } from "lucide-react";
+import { Book, Code, FileText, MessageSquare, Sparkles, Palette } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -78,7 +78,7 @@ code block
         <section className="space-y-3">
           <h3 className="font-medium text-primary flex items-center gap-2">
             <FileText className="h-4 w-4" />
-            Embeds
+            Basic Embeds
           </h3>
           <p className="leading-relaxed">
             You can create rich embeds with the following structure:
@@ -102,9 +102,92 @@ code block
   }]
 }`}
           </div>
-          <p>
-            Discord embeds support many more properties like author, image, thumbnail, and timestamp. 
-            See the <a href="https://discord.com/developers/docs/resources/channel#embed-object" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">official Discord documentation</a> for more details.
+        </section>
+        
+        <section className="space-y-3">
+          <h3 className="font-medium text-primary flex items-center gap-2">
+            <Sparkles className="h-4 w-4" />
+            Rich Embed Components
+          </h3>
+          <p className="leading-relaxed">
+            Discord embeds support many more advanced properties:
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+            <div className="p-3 rounded-md border border-border/30 bg-black/20">
+              <h4 className="font-medium mb-2 text-primary/90">Author</h4>
+              <div className="bg-black/30 p-2 rounded-md font-mono text-xs overflow-x-auto">
+                {`"author": {
+  "name": "Author Name",
+  "url": "https://example.com",
+  "icon_url": "https://example.com/icon.png"
+}`}
+              </div>
+            </div>
+            
+            <div className="p-3 rounded-md border border-border/30 bg-black/20">
+              <h4 className="font-medium mb-2 text-primary/90">Thumbnail</h4>
+              <div className="bg-black/30 p-2 rounded-md font-mono text-xs overflow-x-auto">
+                {`"thumbnail": {
+  "url": "https://example.com/thumbnail.png"
+}`}
+              </div>
+            </div>
+            
+            <div className="p-3 rounded-md border border-border/30 bg-black/20">
+              <h4 className="font-medium mb-2 text-primary/90">Image</h4>
+              <div className="bg-black/30 p-2 rounded-md font-mono text-xs overflow-x-auto">
+                {`"image": {
+  "url": "https://example.com/image.png"
+}`}
+              </div>
+            </div>
+            
+            <div className="p-3 rounded-md border border-border/30 bg-black/20">
+              <h4 className="font-medium mb-2 text-primary/90">Timestamp</h4>
+              <div className="bg-black/30 p-2 rounded-md font-mono text-xs overflow-x-auto">
+                {`"timestamp": "2023-08-15T12:00:00.000Z"`}
+              </div>
+              <p className="text-xs mt-1 text-white/70">ISO8601 format for automatic localization</p>
+            </div>
+          </div>
+        </section>
+        
+        <section className="space-y-3">
+          <h3 className="font-medium text-primary flex items-center gap-2">
+            <Palette className="h-4 w-4" />
+            Embed Colors
+          </h3>
+          <p className="leading-relaxed">
+            Colors in Discord embeds are specified as decimal color values:
+          </p>
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            <div className="flex gap-2 items-center">
+              <div className="w-4 h-4 rounded-full bg-red-500"></div>
+              <div className="font-mono text-xs">15548997 (Red)</div>
+            </div>
+            <div className="flex gap-2 items-center">
+              <div className="w-4 h-4 rounded-full bg-blue-500"></div>
+              <div className="font-mono text-xs">3447003 (Blue)</div>
+            </div>
+            <div className="flex gap-2 items-center">
+              <div className="w-4 h-4 rounded-full bg-green-500"></div>
+              <div className="font-mono text-xs">5763719 (Green)</div>
+            </div>
+            <div className="flex gap-2 items-center">
+              <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
+              <div className="font-mono text-xs">16776960 (Yellow)</div>
+            </div>
+            <div className="flex gap-2 items-center">
+              <div className="w-4 h-4 rounded-full bg-purple-500"></div>
+              <div className="font-mono text-xs">10181046 (Purple)</div>
+            </div>
+            <div className="flex gap-2 items-center">
+              <div className="w-4 h-4 rounded-full bg-pink-500"></div>
+              <div className="font-mono text-xs">15277667 (Pink)</div>
+            </div>
+          </div>
+          <p className="text-xs text-white/70 mt-1">
+            Use our utility function {`hexToDecimal("#HEX")`} to convert hex colors to decimal format.
           </p>
         </section>
         
